@@ -342,4 +342,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58517b4eab498424a976267916bb316e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: bvh/walk_loop
+  fileName: walk_loop.bvh
