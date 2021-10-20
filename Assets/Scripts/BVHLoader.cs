@@ -8,6 +8,8 @@ public class BVHLoader : MonoBehaviour
     // 檔名
     public string fileName = "walk_loop.bvh";
 
+    private Dictionary<BVHParser.BVHBone, GameObject> jointDic = new Dictionary<BVHParser.BVHBone, GameObject>();
+
     private void Start()
     {
         // Read target file in resources folder
@@ -19,47 +21,89 @@ public class BVHLoader : MonoBehaviour
         // Setup parser
         BVHParser parser = new BVHParser(bvhText);
 
+        StartCoroutine(Play(parser));
+    }
+
+    /// <summary>
+    /// 播放Motion
+    /// </summary>
+    /// <param name="parser"></param>
+    /// <returns></returns>
+    private IEnumerator Play(BVHParser parser)
+    {
         GameObject rootSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         rootSphere.name = parser.root.name;
-        rootSphere.transform.position = new Vector3(
-            parser.root.channels[0].values[0],
-            parser.root.channels[1].values[0],
-            parser.root.channels[2].values[0]);
 
-        foreach (BVHParser.BVHBone child in parser.root.children)
+        int frame = 0;
+        while (true)
         {
-            SetupSkeleton(child, rootSphere);
+            if (frame >= parser.frames)
+                frame = 0;
+            rootSphere.transform.position = new Vector3(
+                parser.root.channels[0].values[frame],
+                parser.root.channels[1].values[frame],
+                parser.root.channels[2].values[frame]);
+
+            rootSphere.transform.rotation = Euler2Quat(new Vector3(
+                parser.root.channels[3].values[frame],
+                parser.root.channels[4].values[frame],
+                parser.root.channels[5].values[frame]));
+
+            foreach (BVHParser.BVHBone child in parser.root.children)
+            {
+                SetupSkeleton(child, rootSphere, frame);
+            }
+
+            frame++;
+            yield return new WaitForSeconds(parser.frameTime);
         }
     }
 
-    private void SetupSkeleton(BVHParser.BVHBone currentBone, GameObject parent)
+    /// <summary>
+    /// 根據frame設置joint位置
+    /// </summary>
+    /// <param name="currentBone"></param>
+    /// <param name="parent"></param>
+    /// <param name="frame"></param>
+    private void SetupSkeleton(BVHParser.BVHBone currentBone, GameObject parent, int frame)
     {
         Vector3 offset = new Vector3(currentBone.offsetX, currentBone.offsetY, currentBone.offsetZ);
+        Debug.Log(currentBone.name + " offset: " + offset.ToString("f2"));
         Vector3 rotateVector = new Vector3(
-            currentBone.channels[3].values[0],
-            currentBone.channels[4].values[0],
-            currentBone.channels[5].values[0]);
+            currentBone.channels[3].values[frame],
+            currentBone.channels[4].values[frame],
+            currentBone.channels[5].values[frame]);
 
-        Vector3 newOffset = Quaternion.Euler(rotateVector) * offset;
+        Quaternion rotation = Euler2Quat(rotateVector);
+        Vector3 newOffset = parent.transform.rotation * offset;
 
-        GameObject boneCapsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        boneCapsule.transform.localScale = new Vector3(1, newOffset.magnitude / 2, 1);
-        GameObject jointSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        jointSphere.transform.parent = boneCapsule.transform;
-        boneCapsule.transform.position = parent.transform.position + newOffset / 2;
-        boneCapsule.transform.rotation = Quaternion.Euler(rotateVector);
-        boneCapsule.name = currentBone.name + "_Bone";
-        boneCapsule.transform.parent = parent.transform;
-
+        GameObject joint;
+        LineRenderer renderer;
+        if (!jointDic.TryGetValue(currentBone, out joint))
+        {
+            joint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            joint.name = currentBone.name + "_Joint";
+            joint.AddComponent<LineRenderer>();
+            jointDic.Add(currentBone, joint);
+        }
         
-        jointSphere.transform.localScale = new Vector3(1, 1 / boneCapsule.transform.localScale.y, 1);
-        jointSphere.transform.position = boneCapsule.transform.position + newOffset / 2;
-
-        jointSphere.name = currentBone.name + "_Joint";
+        joint.transform.position = parent.transform.position + newOffset;
+        joint.transform.rotation = parent.transform.rotation * rotation;
+        
+        // Setup line renderer to draw bone between joint
+        renderer = joint.GetComponent<LineRenderer>();
+        renderer.material.SetColor("_Color", Color.blue);
+        renderer.SetPosition(0, parent.transform.position);
+        renderer.SetPosition(1, joint.transform.position);
 
         foreach (BVHParser.BVHBone child in currentBone.children)
         {
-            SetupSkeleton(child, jointSphere);
+            SetupSkeleton(child, joint, frame);
         }
+    }
+
+    private Quaternion Euler2Quat(Vector3 euler)
+    {
+        return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, euler.y, 0);
     }
 }

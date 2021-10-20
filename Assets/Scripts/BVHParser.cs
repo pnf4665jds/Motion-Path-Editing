@@ -239,7 +239,6 @@ public class BVHParser
     {
         bool negate = false;
         bool digitFound = false;
-        int i = 0;
         v = 0f;
 
         // Read sign
@@ -267,7 +266,7 @@ public class BVHParser
 
             // Read digits after decimal
             float fac = 0.1f;
-            while (pos < bvhText.Length && bvhText[pos] >= '0' && bvhText[pos] <= '9' && i < 128)
+            while (pos < bvhText.Length && bvhText[pos] >= '0' && bvhText[pos] <= '9')
             {
                 v += fac * (float)(bvhText[pos++] - '0');
                 fac *= 0.1f;
