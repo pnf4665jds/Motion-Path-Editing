@@ -309,6 +309,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1863850141}
   - component: {fileID: 1863850142}
+  - component: {fileID: 1863850143}
+  - component: {fileID: 1863850144}
   m_Layer: 0
   m_Name: BVHLoader
   m_TagString: Untagged
@@ -343,3 +345,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fileName: walk_loop.bvh
+  runTimeBeziers:
+  - {fileID: 1863850143}
+  - {fileID: 1863850144}
+--- !u!114 &1863850143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863850140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b866db1d1a8d8d34e91a254fadf38268, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  concretePoints: []
+--- !u!114 &1863850144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863850140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b866db1d1a8d8d34e91a254fadf38268, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  concretePoints: []
