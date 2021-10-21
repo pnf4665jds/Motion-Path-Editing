@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class BVHLoader : MonoBehaviour
+public class BVHLoader
 {
-    // 檔名
-    public string fileName = "walk_loop.bvh";
-    public List<RunTimeBezier> runTimeBeziers;
+    public BVHParser parser { get; set; }
+    public GameObject rootJoint { get; set; }
 
     private Dictionary<BVHParser.BVHBone, GameObject> jointDic = new Dictionary<BVHParser.BVHBone, GameObject>();
 
-    private void Start()
+    public void Init(string fileName)
     {
         // Read target file in resources folder
         string filePath = Application.dataPath + "/Resources/" + fileName;
@@ -20,53 +19,10 @@ public class BVHLoader : MonoBehaviour
         sr.Close();
 
         // Setup parser
-        BVHParser parser = new BVHParser(bvhText);
+        parser = new BVHParser(bvhText);
 
-        Matrix4x4 controlPoints = SolveFitCurve(parser);
-        for(int i = 0; i < runTimeBeziers.Count; i++)
-        {
-            runTimeBeziers[i].Init();
-            runTimeBeziers[i].concretePoints[0].transform.position = new Vector3(controlPoints.m00, controlPoints.m01, controlPoints.m02) + new Vector3(0 * i, 0, 0);
-            runTimeBeziers[i].concretePoints[1].transform.position = new Vector3(controlPoints.m10, controlPoints.m11, controlPoints.m12) + new Vector3(0 * i, 0, 0);
-            runTimeBeziers[i].concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0 * i, 0, 0);
-            runTimeBeziers[i].concretePoints[3].transform.position = new Vector3(controlPoints.m30, controlPoints.m31, controlPoints.m32) + new Vector3(0 * i, 0, 0);
-        }
-        StartCoroutine(Play(parser));
-    }
-
-    /// <summary>
-    /// 播放Motion
-    /// </summary>
-    /// <param name="parser"></param>
-    /// <returns></returns>
-    private IEnumerator Play(BVHParser parser)
-    {
-        GameObject rootSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        rootSphere.name = parser.root.name;
-
-        int frame = 0;
-        while (true)
-        {
-            if (frame >= parser.frames)
-                frame = 0;
-            rootSphere.transform.position = new Vector3(
-                parser.root.channels[0].values[frame],
-                parser.root.channels[1].values[frame],
-                parser.root.channels[2].values[frame]);
-
-            rootSphere.transform.rotation = Euler2Quat(new Vector3(
-                parser.root.channels[3].values[frame],
-                parser.root.channels[4].values[frame],
-                parser.root.channels[5].values[frame]));
-
-            foreach (BVHParser.BVHBone child in parser.root.children)
-            {
-                SetupSkeleton(child, rootSphere, frame);
-            }
-
-            frame++;
-            yield return new WaitForSeconds(parser.frameTime);
-        }
+        rootJoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        rootJoint.name = parser.root.name;
     }
 
     /// <summary>
@@ -75,7 +31,7 @@ public class BVHLoader : MonoBehaviour
     /// <param name="currentBone"></param>
     /// <param name="parent"></param>
     /// <param name="frame"></param>
-    private void SetupSkeleton(BVHParser.BVHBone currentBone, GameObject parent, int frame)
+    public void SetupSkeleton(BVHParser.BVHBone currentBone, GameObject parent, int frame)
     {
         Vector3 offset = new Vector3(currentBone.offsetX, currentBone.offsetY, currentBone.offsetZ);
         Vector3 rotateVector = new Vector3(
@@ -118,7 +74,7 @@ public class BVHLoader : MonoBehaviour
     /// </summary>
     /// <param name="euler"></param>
     /// <returns></returns>
-    private Quaternion Euler2Quat(Vector3 euler)
+    public Quaternion Euler2Quat(Vector3 euler)
     {
         return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, euler.y, 0);
     }
@@ -126,7 +82,7 @@ public class BVHLoader : MonoBehaviour
     /// <summary>
     /// 找到fit motion data的cubic b-spline控制點
     /// </summary>
-    private Matrix4x4 SolveFitCurve(BVHParser parser)
+    public Matrix4x4 SolveFitCurve()
     {
         float frameTime = 1.0f / parser.frames;
         //parser.root.channels[0].values[0]

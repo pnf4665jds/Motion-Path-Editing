@@ -308,9 +308,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1863850141}
-  - component: {fileID: 1863850142}
   - component: {fileID: 1863850143}
   - component: {fileID: 1863850144}
+  - component: {fileID: 1863850142}
   m_Layer: 0
   m_Name: BVHLoader
   m_TagString: Untagged
@@ -341,13 +341,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1863850140}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58517b4eab498424a976267916bb316e, type: 3}
+  m_Script: {fileID: 11500000, guid: a168a8907badd47439d9e2d446448aac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   fileName: walk_loop.bvh
-  runTimeBeziers:
-  - {fileID: 1863850143}
-  - {fileID: 1863850144}
+  mainBezier: {fileID: 1863850143}
+  secondBezier: {fileID: 1863850144}
 --- !u!114 &1863850143
 MonoBehaviour:
   m_ObjectHideFlags: 0
