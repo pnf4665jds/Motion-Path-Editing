@@ -45,6 +45,22 @@ public static class Bezier
             3f * oneMinusT * t * t * p2 +
             t * t * t * p3;*/
     }
+    public static float Get_B_Zero(float t) 
+    {
+        return Mathf.Pow((1 - t), 3) / 6;
+    }
+    public static float Get_B_One(float t)
+    {
+        return (3 * Mathf.Pow((t), 3)  - 6 * Mathf.Pow((t), 2) + 4 )/ 6;
+    }
+    public static float Get_B_Two(float t)
+    {
+        return (-3 * Mathf.Pow((t), 3) + 3 * Mathf.Pow((t), 2) + 3*t + 1) / 6;
+    }
+    public static float Get_B_Three(float t)
+    {
+        return (Mathf.Pow((t), 3)) / 6;
+    }
 
     public static Vector3 GetFirstDerivative(Vector3 p0, Vector3 p1, Vector3 p2, float t) 
     {
