@@ -5,6 +5,7 @@ using UnityEngine;
 public class RunTimeBezier : MonoBehaviour
 {
     public List<GameObject> concretePoints = new List<GameObject>();
+    public LineRenderer Lr;
     //private GameObject[] concreteObject = new GameObject[4]; 
     public void Init()
     {
@@ -15,11 +16,44 @@ public class RunTimeBezier : MonoBehaviour
             cube.transform.position = new Vector3(i*10, 0, 0);
 
             cube.AddComponent<DragPoint>();
+            cube.transform.SetParent(this.transform);
             //concreteObject[i] = cube ;
             concretePoints.Add(cube);
         }
+
+        /***********************************/
+        Lr.startWidth = 0.2f;
+        Lr.endWidth = 0.2f;
+        Lr.startColor = Color.yellow;
+        Lr.endColor = Color.yellow;
+        Lr.positionCount = 101;
+
+        
     }
 
+    public void LogicalUpdate() 
+    {
+        if (concretePoints.Count <= 0) { return; }
+
+        Vector3 p0 = concretePoints[0].transform.position;
+        Vector3 p1 = concretePoints[1].transform.position;
+        Vector3 p2 = concretePoints[2].transform.position;
+        Vector3 p3 = concretePoints[3].transform.position;
+
+        Vector3 p = Bezier.GetPoint(p0, p1, p2, p3, 0);
+        Lr.SetPosition(0, p);
+        for (int t = 1; t <= 100; t++)
+        {
+            float f = t / 100.0f;
+            Lr.SetPosition(t,Bezier.GetPoint(p0, p1, p2, p3, f));
+            //p = Bezier.GetPoint(p0, p1, p2, p3, f);
+        }
+    }
+
+    private void drawDirection(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) 
+    {
+        Bezier.GetFirstDerivative(p0, p1, p2, p3, t);
+    }
     void OnDrawGizmos()
     {
         if (concretePoints.Count <= 0) { return; }
@@ -38,13 +72,17 @@ public class RunTimeBezier : MonoBehaviour
 
             //Handles.DrawBezier(p0, p3, p1, p2, Color.white, null, 2f);
 
-            Gizmos.color = Color.yellow;
+            Gizmos.color = Color.green;
             Vector3 p = Bezier.GetPoint(p0, p1, p2, p3, 0);
-            for (int t = 1; t <= 100; t ++)
+            Gizmos.DrawLine(p, p + Bezier.GetFirstDerivative(p0, p1, p2, p3, 0) * 0.2f);
+
+            for (int t = 1; t <= 10; t ++)
             {
-                float f = t / 100.0f;
-                Gizmos.DrawLine(p, Bezier.GetPoint(p0, p1, p2, p3, f));
-                p = Bezier.GetPoint(p0, p1, p2, p3, f);
+                
+                float f = t / 10.0f;
+                Vector3 pt = Bezier.GetPoint(p0, p1, p2, p3, f);
+
+                Gizmos.DrawLine(pt, pt + Bezier.GetFirstDerivative(p0, p1, p2, p3, f) * 0.2f);
             }
 
         }
