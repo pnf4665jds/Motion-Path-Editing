@@ -8,7 +8,9 @@ public class BVHLoader
     public BVHParser parser { get; set; }
     public GameObject rootJoint { get; set; }
 
-    private Dictionary<BVHParser.BVHBone, GameObject> jointDic = new Dictionary<BVHParser.BVHBone, GameObject>();
+    private Dictionary<BVHParser.BVHBone, GameObject> jointDic;
+    private GameObject parentObject;
+    private List<float> chordLengthParameter;
 
     public void Init(string fileName)
     {
@@ -21,8 +23,15 @@ public class BVHLoader
         // Setup parser
         parser = new BVHParser(bvhText);
 
+        parentObject = new GameObject();
+        parentObject.name = "Skeleton";
+
         rootJoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        rootJoint.transform.parent = parentObject.transform;
         rootJoint.name = parser.root.name;
+
+        chordLengthParameter = new List<float>();
+        jointDic = new Dictionary<BVHParser.BVHBone, GameObject>();
     }
 
     /// <summary>
@@ -47,6 +56,7 @@ public class BVHLoader
         if (!jointDic.TryGetValue(currentBone, out joint))
         {
             joint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            joint.transform.parent = parent.transform;
             joint.name = currentBone.name + "_Joint";
             joint.AddComponent<LineRenderer>();
             jointDic.Add(currentBone, joint);
@@ -93,7 +103,7 @@ public class BVHLoader
         float QX, QY, QZ, QX_old, QY_old, QZ_old;
         
         // ­pºâchord-length
-        float d = 0, t_old = 0, t_new = 0;
+        float d = 0, t= 0;
         for(int i = 1; i < parser.frames; i++)
         {
             Vector3 point1 = new Vector3(parser.root.channels[0].values[i - 1], parser.root.channels[1].values[i - 1], parser.root.channels[2].values[i - 1]);
@@ -101,27 +111,34 @@ public class BVHLoader
             d += Vector3.Distance(point1, point2);
         }
 
-
-        for(int i = 0; i < parser.frames; i++)
+        chordLengthParameter.Add(0);
+        for (int i = 1; i < parser.frames; i++)
         {
             QX = parser.root.channels[0].values[i];
             QY = parser.root.channels[1].values[i];
             QZ = parser.root.channels[2].values[i];
 
-            if(i != 0)
-            {
-                QX_old = parser.root.channels[0].values[i - 1];
-                QY_old = parser.root.channels[1].values[i - 1];
-                QZ_old = parser.root.channels[2].values[i - 1];
+            QX_old = parser.root.channels[0].values[i - 1];
+            QY_old = parser.root.channels[1].values[i - 1];
+            QZ_old = parser.root.channels[2].values[i - 1];
 
-                t_new = t_old + Vector3.Distance(new Vector3(QX_old, QY_old, QZ_old), new Vector3(QX, QY, QZ)) / d;
-                t_old = t_new;
-            }
+            t = chordLengthParameter[i - 1] + Vector3.Distance(new Vector3(QX_old, QY_old, QZ_old), new Vector3(QX, QY, QZ)) / d;
+            chordLengthParameter.Add(t);
+        }
+        chordLengthParameter[chordLengthParameter.Count - 1] = 1;
 
-            B0 = Bezier.Get_B_Zero(t_new);
-            B1 = Bezier.Get_B_One(t_new);
-            B2 = Bezier.Get_B_Two(t_new);
-            B3 = Bezier.Get_B_Three(t_new);
+        for (int i = 0; i < parser.frames; i++)
+        {
+            QX = parser.root.channels[0].values[i];
+            QY = parser.root.channels[1].values[i];
+            QZ = parser.root.channels[2].values[i];
+
+            t = chordLengthParameter[i];
+
+            B0 = Bezier.Get_B_Zero(t);
+            B1 = Bezier.Get_B_One(t);
+            B2 = Bezier.Get_B_Two(t);
+            B3 = Bezier.Get_B_Three(t);
 
             // ³]©wA¯x°}
             matA.m00 += B0 * B0;
@@ -157,5 +174,10 @@ public class BVHLoader
         }
 
         return matA.inverse * matB;
+    }
+
+    public List<float> GetChordLengthParameterList()
+    {
+        return chordLengthParameter;
     }
 }
