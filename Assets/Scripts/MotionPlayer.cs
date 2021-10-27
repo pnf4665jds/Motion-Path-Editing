@@ -55,14 +55,14 @@ public class MotionPlayer : MonoBehaviour
         {
             loader.SetupJointDict(child, loader.rootJoint);
         }
-        loader.SetupModelBone(modelBones);
+        //loader.SetupModelBone(modelBones);
 
         // ªì©l¤Æ
         foreach (BVHParser.BVHBone child in secondLoader.parser.root.children)
         {
             secondLoader.SetupJointDict(child, secondLoader.rootJoint);
         }
-        secondLoader.SetupModelBone(modelBones);
+        //secondLoader.SetupModelBone(modelBones);
 
         while (true)
         {
@@ -75,10 +75,12 @@ public class MotionPlayer : MonoBehaviour
             parser.root.channels[1].values[frame],
             parser.root.channels[2].values[frame]);
 
+            int[] order = new int[] { parser.root.channelOrder[0], parser.root.channelOrder[1], parser.root.channelOrder[2] };
+
             Quaternion rootLocalRot = loader.Euler2Quat(new Vector3(
                 parser.root.channels[3].values[frame],
                 parser.root.channels[4].values[frame],
-                parser.root.channels[5].values[frame]));
+                parser.root.channels[5].values[frame]), order);
 
             float t = chordLengthParamterList[frame];
 
@@ -92,7 +94,7 @@ public class MotionPlayer : MonoBehaviour
                 loader.SetupSkeleton(child, loader.rootJoint, frame);
             }
 
-            UpdateNewMotion(bezier, loader.rootJoint, frame);
+            //UpdateNewMotion(bezier, loader.rootJoint, frame);
 
             frame++;
             yield return new WaitForSeconds(parser.frameTime);

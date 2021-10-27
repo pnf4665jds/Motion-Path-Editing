@@ -10,7 +10,7 @@ public class BVHLoader
     public GameObject rootJoint { get; set; }
 
     private Dictionary<BVHParser.BVHBone, GameObject> jointDic;
-    private Dictionary<BVHParser.BVHBone, GameObject> modelBoneDic;
+    private Dictionary<BVHParser.BVHBone, ModelBoneData> modelBoneDic;
     private GameObject parentObject;
     private List<float> chordLengthParameter;
     private List<GameObject> modelBoneList;
@@ -35,7 +35,7 @@ public class BVHLoader
 
         chordLengthParameter = new List<float>();
         jointDic = new Dictionary<BVHParser.BVHBone, GameObject>();
-        modelBoneDic = new Dictionary<BVHParser.BVHBone, GameObject>();
+        modelBoneDic = new Dictionary<BVHParser.BVHBone, ModelBoneData>();
     }
 
     public void SetupJointDict(BVHParser.BVHBone currentBone, GameObject parent)
@@ -65,7 +65,8 @@ public class BVHLoader
             currentBone.channels[4].values[frame],
             currentBone.channels[5].values[frame]);
 
-        Quaternion rotation = Euler2Quat(rotateVector);
+        int[] order = new int[] { currentBone.channelOrder[0], currentBone.channelOrder[1], currentBone.channelOrder[2] };
+        Quaternion rotation = Euler2Quat(rotateVector, order);
         Vector3 newOffset = parent.transform.rotation * offset;
 
         GameObject joint;
@@ -78,10 +79,10 @@ public class BVHLoader
             joint.transform.rotation = parent.transform.rotation * rotation;
         }
 
-        GameObject targetBone;
+        ModelBoneData targetBone;
         if (modelBoneDic.TryGetValue(currentBone, out targetBone))
         {
-            targetBone.transform.localRotation = rotation;
+            targetBone.JointObject.transform.rotation = parent.transform.rotation * rotation;
         }
         // §Q¥ÎLineRendererµeBone
         renderer = joint.GetComponent<LineRenderer>();
@@ -100,9 +101,21 @@ public class BVHLoader
     /// </summary>
     /// <param name="euler"></param>
     /// <returns></returns>
-    public Quaternion Euler2Quat(Vector3 euler)
+    public Quaternion Euler2Quat(Vector3 euler, int[] order)
     {
-        return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, euler.y, 0);
+        if (order[0] == 5 && order[1] == 4 && order[2] == 3)
+            return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(euler.x, 0, 0);
+        else if (order[0] == 5 && order[1] == 3 && order[2] == 4)
+            return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, euler.y, 0);
+        else if (order[0] == 4 && order[1] == 3 && order[2] == 5)
+            return Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(euler.x, 0, 0);
+        else if (order[0] == 4 && order[1] == 5 && order[2] == 3)
+            return Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(euler.x, 0, 0);
+        else if (order[0] == 3 && order[1] == 4 && order[2] == 5)
+            return Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(0, 0, euler.z);
+        else
+            return Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(0, euler.y, 0);
+        return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(euler.x, 0, 0);
     }
 
     /// <summary>
@@ -199,10 +212,25 @@ public class BVHLoader
 
     public void SetupModelBone(List<ModelBone> bones)
     {
-        foreach(ModelBone modelBone in bones)
+        foreach (ModelBone modelBone in bones)
         {
-            var targetBone = jointDic.Where(x => x.Key.name == modelBone.name).ToList();
-            modelBoneDic.Add(targetBone[0].Key, modelBone.bone);
+            if (modelBone.bone != null)
+            {
+                var targetBone = jointDic.Where(x => x.Key.name == modelBone.name).ToList();
+                modelBoneDic.Add(targetBone[0].Key, new ModelBoneData(modelBone.bone, modelBone.bone.transform.rotation));
+            }
         }
     }
+}
+
+public class ModelBoneData
+{
+    public ModelBoneData(GameObject joint, Quaternion initRot)
+    {
+        JointObject = joint;
+        InitRotation = initRot;
+    }
+
+    public GameObject JointObject;
+    public Quaternion InitRotation;
 }
