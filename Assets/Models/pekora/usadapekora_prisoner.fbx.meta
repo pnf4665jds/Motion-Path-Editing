@@ -1,0 +1,272 @@
+fileFormatVersion: 2
+guid: 5093191803b011e47a7e797e9b194f6a
+ModelImporter:
+  serializedVersion: 20200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 0.Mat_ppr_hair_twins
+    second: {fileID: 2100000, guid: ab0a72df10aa02e4dbd2c45c7c7d999e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 1.Mat_ppr_don
+    second: {fileID: 2100000, guid: 58d1691648fed844fa902d76b63b4ae2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 10.Mat_ppr_highlight
+    second: {fileID: 2100000, guid: ab358de2b40f03748975b041143e630b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 11.Mat_ppr_eyes
+    second: {fileID: 2100000, guid: b63ad610eb505234abe4664a968e65bb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 12.Mat_ppr_metals
+    second: {fileID: 2100000, guid: 6b8bbd21beca49a479b5a231b42f2842, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 13.Mat_ppr_kuti_teeth
+    second: {fileID: 2100000, guid: d06284ea1e32c654989f22b7f87810e0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 14.Mat_ppr_kuti_tongue
+    second: {fileID: 2100000, guid: c2ff08933b94a32439f2ec2cd20e423d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 15.Mat_ppr_morpheyes
+    second: {fileID: 2100000, guid: 3be0b2011a9cc394caa76f7265baf244, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 16.Mat_ppr_tears
+    second: {fileID: 2100000, guid: 93519c9f524be2a4390e059f200fbed6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 17.Mat_ppr_ninjin_orange
+    second: {fileID: 2100000, guid: ee5d3450912d0964a871c85f2d2e1096, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 18.Mat_ppr_ninjin_green
+    second: {fileID: 2100000, guid: 7e828bc11693a9a4ab235b6274169c2d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 19.Mat_ppr_metals_foot
+    second: {fileID: 2100000, guid: a930501c42b0c01459a393ba6f76165c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 2.Mat_ppr_hat_w
+    second: {fileID: 2100000, guid: 3b91d0e5bbe45894b8a472b465c4a5ec, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 20.Mat_ppr_mayuge
+    second: {fileID: 2100000, guid: ccc38283d173ef64bb366cab0f53010e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 21.Mat_ppr_tere
+    second: {fileID: 2100000, guid: 0eb5fdcc92f5e36469e5dacad8eb6bd6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 22.Mat_ppr_ase
+    second: {fileID: 2100000, guid: f30bf6f8b821480479b20c809bb2e0af, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 23.Mat_ppr_huku
+    second: {fileID: 2100000, guid: 447ef63bda539854fbb855df68622421, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 24.Mat_ppr_mayu
+    second: {fileID: 2100000, guid: 143c5f2dcc6d88a4da3a785970384c14, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 25.Mat_ppr_muka
+    second: {fileID: 2100000, guid: dc05cc1e46a207a45b4ec9d94c4b45df, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 26.Mat_ppr_pantu
+    second: {fileID: 2100000, guid: 6749970cf4d8ef449a75e92402569ec5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 27.Mat_ppr_usamimi_soto
+    second: {fileID: 2100000, guid: fd41429cc044e4c4cb87058f80cb91d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 28.Mat_ppr_usamimi_uti
+    second: {fileID: 2100000, guid: 801fd51d9bf4e2b47810f6cd763398c2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 29.Mat_ppr_usamimi_ke
+    second: {fileID: 2100000, guid: 8857d93b5470bd84a8c9ff95eab2c2f5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 3.Mat_ppr_face
+    second: {fileID: 2100000, guid: 944c8b1f52915dc43a3bee92c8edba76, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 30.Mat_ppr_hair
+    second: {fileID: 2100000, guid: 5efc108fb638bfd488981e53fd76e27a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 31.Mat_ppr_hair_kage
+    second: {fileID: 2100000, guid: 39a7070d0df3fb84c95fa87bb887f805, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 32.Mat_ppr_hat_b
+    second: {fileID: 2100000, guid: 5e366bb62a626b04e8d684450f14d45e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 33.Mat_ppr_aozame
+    second: {fileID: 2100000, guid: 4a234aec9fc1d3c4e93335b0be2388c9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 4.Mat_ppr_kounai
+    second: {fileID: 2100000, guid: be716e87285dbc04c870ff900676ec3c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 5.Mat_ppr_sirome
+    second: {fileID: 2100000, guid: 92e1eb24070c3ac4b9959ea05c71daf2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 6.Mat_ppr_body
+    second: {fileID: 2100000, guid: 9edccb1244b3c954ca27c736d7c7e188, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 7.Mat_ppr_pin
+    second: {fileID: 2100000, guid: fb0300c28ef7cb34fa3a61dc52e743cf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 8.Mat_ppr_sippo
+    second: {fileID: 2100000, guid: 44fa0ae574a2e004e90b8bb70d87f271, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 9.Mat_ppr_eye
+    second: {fileID: 2100000, guid: f8de9f61fb250574880967e326eef722, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 0
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 3
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 3
+  humanoidOversampling: 1
+  avatarSetup: 1
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

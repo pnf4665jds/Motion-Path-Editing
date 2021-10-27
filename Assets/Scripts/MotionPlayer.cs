@@ -12,6 +12,10 @@ public class MotionPlayer : MonoBehaviour
     public RunTimeBezier mainBezier;
     public RunTimeBezier secondBezier;
 
+    [Header("Model bone")]
+    public List<ModelBone> modelBones;
+    public GameObject rootBone;
+
     private void Start()
     {
         loader = new BVHLoader();
@@ -45,6 +49,21 @@ public class MotionPlayer : MonoBehaviour
         BVHParser parser = loader.parser;
         int frame = 0;
         List<float> chordLengthParamterList = loader.GetChordLengthParameterList();
+
+        // 初始化
+        foreach (BVHParser.BVHBone child in parser.root.children)
+        {
+            loader.SetupJointDict(child, loader.rootJoint);
+        }
+        loader.SetupModelBone(modelBones);
+
+        // 初始化
+        foreach (BVHParser.BVHBone child in secondLoader.parser.root.children)
+        {
+            secondLoader.SetupJointDict(child, secondLoader.rootJoint);
+        }
+        secondLoader.SetupModelBone(modelBones);
+
         while (true)
         {
             bezier.LogicalUpdate();
@@ -65,7 +84,9 @@ public class MotionPlayer : MonoBehaviour
 
             loader.rootJoint.transform.position = rootLocalPos;
             loader.rootJoint.transform.rotation = rootLocalRot;
-  
+
+            rootBone.transform.rotation = rootLocalRot;
+
             foreach (BVHParser.BVHBone child in parser.root.children)
             {
                 loader.SetupSkeleton(child, loader.rootJoint, frame);
@@ -105,4 +126,11 @@ public class MotionPlayer : MonoBehaviour
             loader.SetupSkeleton(child, loader.rootJoint, frame);
         }
     }
+}
+
+[System.Serializable]
+public class ModelBone
+{
+    public string name;
+    public GameObject bone;
 }

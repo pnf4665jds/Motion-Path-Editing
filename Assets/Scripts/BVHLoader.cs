@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public class BVHLoader
@@ -9,8 +10,10 @@ public class BVHLoader
     public GameObject rootJoint { get; set; }
 
     private Dictionary<BVHParser.BVHBone, GameObject> jointDic;
+    private Dictionary<BVHParser.BVHBone, GameObject> modelBoneDic;
     private GameObject parentObject;
     private List<float> chordLengthParameter;
+    private List<GameObject> modelBoneList;
 
     public void Init(string fileName)
     {
@@ -32,6 +35,20 @@ public class BVHLoader
 
         chordLengthParameter = new List<float>();
         jointDic = new Dictionary<BVHParser.BVHBone, GameObject>();
+        modelBoneDic = new Dictionary<BVHParser.BVHBone, GameObject>();
+    }
+
+    public void SetupJointDict(BVHParser.BVHBone currentBone, GameObject parent)
+    {     
+        GameObject joint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        joint.transform.parent = parent.transform;
+        joint.name = currentBone.name;
+        joint.AddComponent<LineRenderer>();
+        jointDic.Add(currentBone, joint);
+        foreach (BVHParser.BVHBone child in currentBone.children)
+        {
+            SetupJointDict(child, joint);
+        }
     }
 
     /// <summary>
@@ -53,20 +70,19 @@ public class BVHLoader
 
         GameObject joint;
         LineRenderer renderer;
-        if (!jointDic.TryGetValue(currentBone, out joint))
+        if (jointDic.TryGetValue(currentBone, out joint))
         {
-            joint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            joint.transform.parent = parent.transform;
-            joint.name = currentBone.name + "_Joint";
-            joint.AddComponent<LineRenderer>();
-            jointDic.Add(currentBone, joint);
+            // joint global position = parent global position + (parent global rotation * offset)
+            joint.transform.position = parent.transform.position + newOffset;
+            // joint global rotation = parent global rotation * joint local rotation
+            joint.transform.rotation = parent.transform.rotation * rotation;
         }
-        
-        // joint global position = parent global position + (parent global rotation * offset)
-        joint.transform.position = parent.transform.position + newOffset;
-        // joint global rotation = parent global rotation * joint local rotation
-        joint.transform.rotation = parent.transform.rotation * rotation;
-        
+
+        GameObject targetBone;
+        if (modelBoneDic.TryGetValue(currentBone, out targetBone))
+        {
+            targetBone.transform.localRotation = rotation;
+        }
         // §Q¥ÎLineRendererµeBone
         renderer = joint.GetComponent<LineRenderer>();
         renderer.material.SetColor("_Color", Color.blue);
@@ -179,5 +195,14 @@ public class BVHLoader
     public List<float> GetChordLengthParameterList()
     {
         return chordLengthParameter;
+    }
+
+    public void SetupModelBone(List<ModelBone> bones)
+    {
+        foreach(ModelBone modelBone in bones)
+        {
+            var targetBone = jointDic.Where(x => x.Key.name == modelBone.name).ToList();
+            modelBoneDic.Add(targetBone[0].Key, modelBone.bone);
+        }
     }
 }
