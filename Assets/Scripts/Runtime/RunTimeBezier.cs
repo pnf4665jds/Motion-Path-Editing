@@ -50,6 +50,46 @@ public class RunTimeBezier : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 取得Path上的平移矩陣
+    /// </summary>
+    /// <param name="t"></param>
+    /// <returns></returns>
+    public Matrix4x4 GetTranslationMatrix(float t)
+    {
+        Vector3 p0 = concretePoints[0].transform.position;
+        Vector3 p1 = concretePoints[1].transform.position;
+        Vector3 p2 = concretePoints[2].transform.position;
+        Vector3 p3 = concretePoints[3].transform.position;
+
+        Vector3 pos = Bezier.GetPoint(p0, p1, p2, p3, t);
+        return Matrix4x4.Translate(pos);
+    }
+
+    /// <summary>
+    /// 取得Path上的旋轉矩陣
+    /// </summary>
+    /// <param name="t"></param>
+    /// <returns></returns>
+    public Matrix4x4 GetRotationMatrix(float t)
+    {
+        Vector3 p0 = concretePoints[0].transform.position;
+        Vector3 p1 = concretePoints[1].transform.position;
+        Vector3 p2 = concretePoints[2].transform.position;
+        Vector3 p3 = concretePoints[3].transform.position;
+
+        Vector3 tangent = Vector3.ProjectOnPlane(Bezier.GetFirstDerivative(p0, p1, p2, p3, t), Vector3.up);
+        Vector3 left = Vector3.Cross(Vector3.up, tangent);
+        Vector3 up = Vector3.up;
+        Matrix4x4 rotationMatrix = new Matrix4x4();
+        rotationMatrix.SetRow(0, new Vector4(left.x, left.y, left.z, 0));
+        rotationMatrix.SetRow(1, new Vector4(up.x, up.y, up.z, 0));
+        rotationMatrix.SetRow(2, new Vector4(tangent.x, tangent.y, tangent.z, 0));
+        rotationMatrix.SetRow(3, new Vector4(0, 0, 0, 1));
+
+        return rotationMatrix;
+    }
+
     private void drawDirection(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) 
     {
         Bezier.GetFirstDerivative(p0, p1, p2, p3, t);

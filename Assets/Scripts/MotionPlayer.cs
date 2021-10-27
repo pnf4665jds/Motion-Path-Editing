@@ -32,7 +32,7 @@ public class MotionPlayer : MonoBehaviour
         secondBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
         secondBezier.concretePoints[3].transform.position = new Vector3(controlPoints.m30, controlPoints.m31, controlPoints.m32) + new Vector3(0, 0, 0);
 
-        StartCoroutine(Play(loader));
+        StartCoroutine(Play(loader, mainBezier));
     }
 
     /// <summary>
@@ -40,42 +40,69 @@ public class MotionPlayer : MonoBehaviour
     /// </summary>
     /// <param name="parser"></param>
     /// <returns></returns>
-    public IEnumerator Play(BVHLoader loader)
+    public IEnumerator Play(BVHLoader loader, RunTimeBezier bezier)
     {
         BVHParser parser = loader.parser;
         int frame = 0;
+        List<float> chordLengthParamterList = loader.GetChordLengthParameterList();
         while (true)
         {
+            bezier.LogicalUpdate();
             if (frame >= parser.frames)
                 frame = 0;
-            loader.rootJoint.transform.position = new Vector3(
-                parser.root.channels[0].values[frame],
-                parser.root.channels[1].values[frame],
-                parser.root.channels[2].values[frame]);
 
-            loader.rootJoint.transform.rotation = loader.Euler2Quat(new Vector3(
+            Vector3 rootLocalPos = new Vector3(
+            parser.root.channels[0].values[frame],
+            parser.root.channels[1].values[frame],
+            parser.root.channels[2].values[frame]);
+
+            Quaternion rootLocalRot = loader.Euler2Quat(new Vector3(
                 parser.root.channels[3].values[frame],
                 parser.root.channels[4].values[frame],
                 parser.root.channels[5].values[frame]));
 
+            float t = chordLengthParamterList[frame];
+
+            loader.rootJoint.transform.position = rootLocalPos;
+            loader.rootJoint.transform.rotation = rootLocalRot;
+  
             foreach (BVHParser.BVHBone child in parser.root.children)
             {
                 loader.SetupSkeleton(child, loader.rootJoint, frame);
             }
+
+            UpdateNewMotion(bezier, loader.rootJoint, frame);
 
             frame++;
             yield return new WaitForSeconds(parser.frameTime);
         }
     }
 
-    private Matrix4x4 GetTransformMatrix(float t)
+    public void UpdateNewMotion(RunTimeBezier bezier, GameObject mainRoot, int frame)
     {
-        Vector3 pos = Bezier.GetPoint(
-            mainBezier.concretePoints[0].transform.position,
-            mainBezier.concretePoints[1].transform.position,
-            mainBezier.concretePoints[2].transform.position,
-            mainBezier.concretePoints[3].transform.position,
-            t);
-        return new Matrix4x4();
+        BVHLoader loader = secondLoader;
+        BVHParser parser = loader.parser;
+
+        secondBezier.LogicalUpdate();
+        if (frame >= parser.frames)
+            frame = 0;
+
+        float t = (float)frame / parser.frames;
+
+        Matrix4x4 TransformMatrix =
+            secondBezier.GetTranslationMatrix(t) *
+            secondBezier.GetRotationMatrix(t) *
+            bezier.GetRotationMatrix(t).inverse *
+            bezier.GetTranslationMatrix(t).inverse;
+
+        Matrix4x4 FinalTransformMatrix = TransformMatrix * mainRoot.transform.localToWorldMatrix;
+        loader.rootJoint.transform.position = FinalTransformMatrix.ExtractPosition();
+        //Debug.Log("Time: " + t + "  Pos: " + TransformMatrix.ExtractPosition());
+        loader.rootJoint.transform.rotation = FinalTransformMatrix.ExtractRotation();
+
+        foreach (BVHParser.BVHBone child in parser.root.children)
+        {
+            loader.SetupSkeleton(child, loader.rootJoint, frame);
+        }
     }
 }
