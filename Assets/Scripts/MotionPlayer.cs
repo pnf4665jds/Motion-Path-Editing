@@ -49,17 +49,19 @@ public class MotionPlayer : MonoBehaviour
         {
             bezier.LogicalUpdate();
             if (frame >= parser.frames)
-                frame = 0;
+                frame = 1;
 
             Vector3 rootLocalPos = new Vector3(
             parser.root.channels[0].values[frame],
             parser.root.channels[1].values[frame],
             parser.root.channels[2].values[frame]);
 
+
+            int[] order = new int[3] { parser.root.channelOrder[3], parser.root.channelOrder[4], parser.root.channelOrder[5] };
             Quaternion rootLocalRot = loader.Euler2Quat(new Vector3(
                 parser.root.channels[3].values[frame],
                 parser.root.channels[4].values[frame],
-                parser.root.channels[5].values[frame]));
+                parser.root.channels[5].values[frame]), order);
 
             float t = chordLengthParamterList[frame];
 
@@ -80,8 +82,7 @@ public class MotionPlayer : MonoBehaviour
 
     public void UpdateNewMotion(RunTimeBezier bezier, GameObject mainRoot, int frame)
     {
-        BVHLoader loader = secondLoader;
-        BVHParser parser = loader.parser;
+        BVHParser parser = secondLoader.parser;
 
         secondBezier.LogicalUpdate();
         if (frame >= parser.frames)
@@ -96,13 +97,17 @@ public class MotionPlayer : MonoBehaviour
             bezier.GetTranslationMatrix(t).inverse;
 
         Matrix4x4 FinalTransformMatrix = TransformMatrix * mainRoot.transform.localToWorldMatrix;
-        loader.rootJoint.transform.position = FinalTransformMatrix.ExtractPosition();
+        secondLoader.rootJoint.transform.position = FinalTransformMatrix.ExtractPosition();
         //Debug.Log("Time: " + t + "  Pos: " + TransformMatrix.ExtractPosition());
-        loader.rootJoint.transform.rotation = FinalTransformMatrix.ExtractRotation();
+        secondLoader.rootJoint.transform.rotation = FinalTransformMatrix.ExtractRotation();
+
+        //loader.rootJoint.transform.position = mainRoot.transform.position;
+        //Debug.Log("Time: " + t + "  Pos: " + TransformMatrix.ExtractPosition());
+        //loader.rootJoint.transform.rotation = mainRoot.transform.rotation;
 
         foreach (BVHParser.BVHBone child in parser.root.children)
         {
-            loader.SetupSkeleton(child, loader.rootJoint, frame);
+            secondLoader.SetupSkeleton(child, secondLoader.rootJoint, frame);
         }
     }
 }
