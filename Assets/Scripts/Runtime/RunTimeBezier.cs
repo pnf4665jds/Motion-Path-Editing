@@ -6,6 +6,7 @@ public class RunTimeBezier : MonoBehaviour
 {
     public List<GameObject> concretePoints = new List<GameObject>();
     public LineRenderer Lr;
+    public float Speed = 1;
     //private GameObject[] concreteObject = new GameObject[4]; 
     public void Init()
     {
@@ -78,9 +79,10 @@ public class RunTimeBezier : MonoBehaviour
         Vector3 p2 = concretePoints[2].transform.position;
         Vector3 p3 = concretePoints[3].transform.position;
 
-        Vector3 tangent = Vector3.ProjectOnPlane(Bezier.GetFirstDerivative(p0, p1, p2, p3, t), Vector3.up);
+        Vector3 tangent = Vector3.ProjectOnPlane(Bezier.GetFirstDerivative(p0, p1, p2, p3, t).normalized, Vector3.up);
         Vector3 right = -Vector3.Cross(Vector3.up, tangent);
         Vector3 up = Vector3.up;
+
         Matrix4x4 rotationMatrix = new Matrix4x4();
         rotationMatrix.SetRow(0, new Vector4(right.x, right.y, right.z, 0));
         rotationMatrix.SetRow(1, new Vector4(up.x, up.y, up.z, 0));

@@ -63,8 +63,6 @@ public class MotionPlayer : MonoBehaviour
                 parser.root.channels[4].values[frame],
                 parser.root.channels[5].values[frame]), order);
 
-            float t = chordLengthParamterList[frame];
-
             loader.rootJoint.transform.position = rootLocalPos;
             loader.rootJoint.transform.rotation = rootLocalRot;
   

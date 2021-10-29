@@ -102,22 +102,13 @@ public class BVHLoader
         return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(euler.x, 0, 0);
     }
 
-    /// <summary>
-    /// 找到fit motion data的cubic b-spline控制點
-    /// </summary>
-    public Matrix4x4 SolveFitCurve()
+    public void SetUpArcLengthParameter()
     {
-        float frameTime = 1.0f / parser.frames;
-        //parser.root.channels[0].values[0]
-        Matrix4x4 matA = Matrix4x4.zero;
-        Matrix4x4 matB = Matrix4x4.zero;
-
-        float B0, B1, B2, B3;
-        float QX, QY, QZ, QX_old, QY_old, QZ_old;
-        
+        float QX, QY, QZ;
+        float QX_old, QY_old, QZ_old;
         // 計算chord-length
-        float d = 0, t= 0;
-        for(int i = 1; i < parser.frames; i++)
+        float d = 0, t = 0;
+        for (int i = 1; i < parser.frames; i++)
         {
             Vector3 point1 = new Vector3(parser.root.channels[0].values[i - 1], parser.root.channels[1].values[i - 1], parser.root.channels[2].values[i - 1]);
             Vector3 point2 = new Vector3(parser.root.channels[0].values[i], parser.root.channels[1].values[i], parser.root.channels[2].values[i]);
@@ -139,6 +130,23 @@ public class BVHLoader
             chordLengthParameter.Add(t);
         }
         chordLengthParameter[chordLengthParameter.Count - 1] = 1;
+    }
+
+    /// <summary>
+    /// 找到fit motion data的cubic b-spline控制點
+    /// </summary>
+    public Matrix4x4 SolveFitCurve()
+    {
+        SetUpArcLengthParameter();
+        float frameTime = 1.0f / parser.frames;
+        //parser.root.channels[0].values[0]
+        Matrix4x4 matA = Matrix4x4.zero;
+        Matrix4x4 matB = Matrix4x4.zero;
+
+        float B0, B1, B2, B3;
+        float QX, QY, QZ;
+
+        float t;
 
         for (int i = 0; i < parser.frames; i++)
         {
