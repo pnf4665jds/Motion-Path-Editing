@@ -1,18 +1,20 @@
-using System;
-using System.Collections;
+Ôªøusing System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
 
-// This class uses no Unity data types and should be completely safe to use in another thread
+
 public class BVHParser
 {
     public int frames = 0;
     public float frameTime = 1000f / 60f;
     public BVHBone root;
-    private List<BVHBone> boneList; // ∞Oø˝©“¶≥™∫Bone
+    private List<BVHBone> boneList;
 
     static private char[] charMap = null;
-    private float[][] channels;     // ¨ˆø˝Motion∞œ∏ÍÆ∆™∫2d array
+    private float[][] channels;
     private string bvhText;
     private int pos = 0;
 
@@ -39,7 +41,7 @@ public class BVHParser
             bp = parser;
             bp.boneList.Add(this);
             channels = new BVHChannel[6];
-            channelOrder = new int[6] { 0, 1, 2, 5, 3, 4 }; // ™`∑NRotation∂∂ß«¨∞ Z X Y
+            channelOrder = new int[6] { 0, 1, 2, 5, 3, 4 };
             children = new List<BVHBone>();
 
             bp.skip();
@@ -127,11 +129,6 @@ public class BVHParser
         return true;
     }
 
-    /// <summary>
-    /// ¿À¨d¨Oß_πJ®Ï´¸©w™∫Text
-    /// </summary>
-    /// <param name="text"></param>
-    /// <returns></returns>
     private bool expect(string text)
     {
         foreach (char c in text)
@@ -239,8 +236,8 @@ public class BVHParser
     {
         bool negate = false;
         bool digitFound = false;
+        int i = 0;
         v = 0f;
-
         // Read sign
         if (pos < bvhText.Length && bvhText[pos] == '-')
         {
@@ -251,7 +248,6 @@ public class BVHParser
         {
             pos++;
         }
-
         // Read digits before decimal point
         while (pos < bvhText.Length && bvhText[pos] >= '0' && bvhText[pos] <= '9')
         {
@@ -263,10 +259,9 @@ public class BVHParser
         if (pos < bvhText.Length && (bvhText[pos] == '.' || bvhText[pos] == ','))
         {
             pos++;
-
             // Read digits after decimal
             float fac = 0.1f;
-            while (pos < bvhText.Length && bvhText[pos] >= '0' && bvhText[pos] <= '9')
+            while (pos < bvhText.Length && bvhText[pos] >= '0' && bvhText[pos] <= '9' && i < 128)
             {
                 v += fac * (float)(bvhText[pos++] - '0');
                 fac *= 0.1f;
@@ -279,6 +274,17 @@ public class BVHParser
         {
             v *= -1f;
         }
+
+        if (pos < bvhText.Length && bvhText[pos] == 'e')
+        {
+            string scienceNum = "10";
+            while (pos < bvhText.Length && bvhText[pos] != ' ' && bvhText[pos] != '\t' && bvhText[pos] != '\n' && bvhText[pos] != '\r')
+            {
+                scienceNum = scienceNum + bvhText[pos];
+                pos++;
+            }
+            v = v * (float)Double.Parse(scienceNum);
+        }
         if (!digitFound)
         {
             v = float.NaN;
@@ -286,9 +292,6 @@ public class BVHParser
         return digitFound;
     }
 
-    /// <summary>
-    /// ∏ıπL™≈•’™∫≥°§¿°A™Ω®ÏπJ®Ï§U≠”´D™≈•’
-    /// </summary>
     private void skip()
     {
         while (pos < bvhText.Length && (bvhText[pos] == ' ' || bvhText[pos] == '\t' || bvhText[pos] == '\n' || bvhText[pos] == '\r'))
@@ -317,11 +320,6 @@ public class BVHParser
         assure("newline", foundNewline);
     }
 
-    /// <summary>
-    /// ¶p™GParse•¢±—°AøÈ•X§@®«ø˘ª~∞TÆß
-    /// </summary>
-    /// <param name="what"></param>
-    /// <param name="result"></param>
     private void assure(string what, bool result)
     {
         if (!result)
@@ -348,6 +346,65 @@ public class BVHParser
         assure(text, expect(text));
     }
 
+    /*private void tryCustomFloats(string[] floats) {
+        float total = 0f;
+        foreach (string f in floats) {
+            pos = 0;
+            bvhText = f;
+            float v;
+            getFloat(out v);
+            total += v;
+        }
+        Debug.Log("Custom: " + total);
+    }
+
+    private void tryStandardFloats(string[] floats) {
+        IFormatProvider fp = CultureInfo.InvariantCulture;
+        float total = 0f;
+        foreach (string f in floats) {
+            float v = float.Parse(f, fp);
+            total += v;
+        }
+        Debug.Log("Standard: " + total);
+    }
+
+    private void tryCustomInts(string[] ints) {
+        int total = 0;
+        foreach (string i in ints) {
+            pos = 0;
+            bvhText = i;
+            int v;
+            getInt(out v);
+            total += v;
+        }
+        Debug.Log("Custom: " + total);
+    }
+
+    private void tryStandardInts(string[] ints) {
+        IFormatProvider fp = CultureInfo.InvariantCulture;
+        int total = 0;
+        foreach (string i in ints) {
+            int v = int.Parse(i, fp);
+            total += v;
+        }
+        Debug.Log("Standard: " + total);
+    }
+
+    public void benchmark () {
+        string[] floats = new string[105018];
+        string[] ints = new string[105018];
+        for (int i = 0; i < floats.Length; i++) {
+            floats[i] = UnityEngine.Random.Range(-180f, 180f).ToString();
+        }
+        for (int i = 0; i < ints.Length; i++) {
+            ints[i] = ((int)Mathf.Round(UnityEngine.Random.Range(-180f, 18000f))).ToString();
+        }
+        tryCustomFloats(floats);
+        tryStandardFloats(floats);
+        tryCustomInts(ints);
+        tryStandardInts(ints);
+    }*/
+
     private void parse(bool overrideFrameTime, float time)
     {
         // Prepare character table
@@ -371,7 +428,7 @@ public class BVHParser
             }
         }
 
-        // Parse skeleton(HIERARCHY part of BVH)
+        // Parse skeleton
         skip();
         assureExpect("HIERARCHY");
 
@@ -424,10 +481,6 @@ public class BVHParser
         }
     }
 
-    /// <summary>
-    /// ª›≠n∂«§Jæ„≠”bvh™∫string
-    /// </summary>
-    /// <param name="bvhText"></param>
     public BVHParser(string bvhText)
     {
         this.bvhText = bvhText;
@@ -441,4 +494,75 @@ public class BVHParser
 
         parse(true, time);
     }
+
+
+    private Quaternion eul2quat(float z, float y, float x)
+    {
+        z = z * Mathf.Deg2Rad;
+        y = y * Mathf.Deg2Rad;
+        x = x * Mathf.Deg2Rad;
+
+        // Âä®ÊçïÊï∞ÊçÆÊòØZYXÔºå‰ΩÜÊòØunityÊòØZXY
+        float[] c = new float[3];
+        float[] s = new float[3];
+        c[0] = Mathf.Cos(x / 2.0f); c[1] = Mathf.Cos(y / 2.0f); c[2] = Mathf.Cos(z / 2.0f);
+        s[0] = Mathf.Sin(x / 2.0f); s[1] = Mathf.Sin(y / 2.0f); s[2] = Mathf.Sin(z / 2.0f);
+
+        return new Quaternion(
+            c[0] * c[1] * s[2] - s[0] * s[1] * c[2],
+            c[0] * s[1] * c[2] + s[0] * c[1] * s[2],
+            s[0] * c[1] * c[2] - c[0] * s[1] * s[2],
+            c[0] * c[1] * c[2] + s[0] * s[1] * s[2]
+            );
+    }
+
+    public Dictionary<string, string> getHierachy()
+    {
+        Dictionary<string, string> hierachy = new Dictionary<string, string>();
+        foreach (BVHBone bb in boneList)
+        {
+            foreach (BVHBone bbc in bb.children)
+            {
+                hierachy.Add(bbc.name, bb.name);
+            }
+        }
+        return hierachy;
+    }
+
+    public Dictionary<string, Quaternion> getKeyFrame(int frameIdx)
+    {
+        Dictionary<string, string> hierachy = getHierachy();
+        Dictionary<string, Quaternion> boneData = new Dictionary<string, Quaternion>();
+        boneData.Add("pos", new Quaternion(
+            boneList[0].channels[0].values[frameIdx],
+            boneList[0].channels[1].values[frameIdx],
+            boneList[0].channels[2].values[frameIdx], 0));
+
+        boneData.Add(boneList[0].name, eul2quat(
+                boneList[0].channels[3].values[frameIdx],
+                boneList[0].channels[4].values[frameIdx],
+                boneList[0].channels[5].values[frameIdx]));
+        foreach (BVHBone bb in boneList)
+        {
+            if (bb.name != boneList[0].name)
+            {
+                Quaternion localrot = eul2quat(bb.channels[3].values[frameIdx],
+                    bb.channels[4].values[frameIdx],
+                    bb.channels[5].values[frameIdx]);
+                boneData.Add(bb.name, boneData[hierachy[bb.name]] * localrot);
+            }
+        }
+        return boneData;
+    }
+
+    public Dictionary<string, Vector3> getOffset(float ratio)
+    {
+        Dictionary<string, Vector3> offset = new Dictionary<string, Vector3>();
+        foreach (BVHBone bb in boneList)
+        {
+            offset.Add(bb.name, new Vector3(bb.offsetX * ratio, bb.offsetY * ratio, bb.offsetZ * ratio));
+        }
+        return offset;
+    }
 }
+
