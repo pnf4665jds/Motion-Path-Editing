@@ -97,9 +97,15 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         Vector3 offsetRot = lastRot - newRot;
 
         Motion newMotion = new Motion(firstParser);
+       
         for(int i = 0; i < secondParser.frames; i++)
         {
-
+            Dictionary<string, Vector3> newData = new Dictionary<string, Vector3>();
+            Dictionary<string, Vector3> oldFrameData = firstParser.getKeyFrameAsVector(i);
+            Vector3 oldRootPos = new Vector3(oldFrameData["pos"].x, oldFrameData["pos"].y, oldFrameData["pos"].z);
+            Vector3 oldRootRot = oldFrameData[firstParser.root.name];
+            newData.Add("pos", oldRootPos + offsetPos);
+            newData.Add(firstParser.root.name, oldRootRot + offsetRot);
         }
     }
 }
