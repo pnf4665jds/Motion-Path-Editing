@@ -361,7 +361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a168a8907badd47439d9e2d446448aac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: 08_01.bvh
+  fileName: walk_loop.bvh
   mainBezier: {fileID: 7595397837083933286}
   secondBezier: {fileID: 7595397837330742051}
 --- !u!120 &6698865656777875556
@@ -574,6 +574,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   concretePoints: []
   Lr: {fileID: 6698865658093445409}
+  Speed: 1
 --- !u!1 &7595397837083933287
 GameObject:
   m_ObjectHideFlags: 0
@@ -638,6 +639,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   concretePoints: []
   Lr: {fileID: 6698865656777875556}
+  Speed: 1
 --- !u!4 &7595397837330742060
 Transform:
   m_ObjectHideFlags: 0
