@@ -94,6 +94,6 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         Quaternion newRot = secondKeyframeList[secondParser.root.name];
 
         Vector3 offsetPos = lastPos - newPos;
-        Quaternion offsetRot = lastRot - newRot;
+        //Quaternion offsetRot = lastRot - newRot;
     }
 }
