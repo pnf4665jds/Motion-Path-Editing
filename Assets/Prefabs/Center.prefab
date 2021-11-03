@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6213473813496812179
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6213473813496812181}
+  - component: {fileID: 6213473813496812180}
+  m_Layer: 0
+  m_Name: Center
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6213473813496812181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6213473813496812179}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.591155, y: 11.440779, z: 7.0335803}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6213473813496812180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6213473813496812179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abe82018561314945aae26bd22fa7203, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetAvatar: {fileID: 9030822770132729090, guid: 1b9b050025622d7419f3b293a4dca5b3, type: 3}
+  filename: D:\Bruce\NTUSTCourse\3DGameDesign\Motion-Path-Editing\Assets\Resources\08_01.bvh
+  frameRate: 60
+  FirstT: 1
+  paths: []
+  count: 1
+  bonemaps:
+  - bvh_name: Hips
+    humanoid_bone: 0
+  - bvh_name: LeftUpLeg
+    humanoid_bone: 2
+  - bvh_name: LeftLeg
+    humanoid_bone: 4
+  - bvh_name: LeftFoot
+    humanoid_bone: 6
+  - bvh_name: RightUpLeg
+    humanoid_bone: 1
+  - bvh_name: RightLeg
+    humanoid_bone: 3
+  - bvh_name: RightFoot
+    humanoid_bone: 5
+  - bvh_name: Spine
+    humanoid_bone: 7
+  - bvh_name: Spine1
+    humanoid_bone: 8
+  - bvh_name: Neck
+    humanoid_bone: 9
+  - bvh_name: LeftShoulder
+    humanoid_bone: 12
+  - bvh_name: LeftArm
+    humanoid_bone: 14
+  - bvh_name: LeftForeArm
+    humanoid_bone: 16
+  - bvh_name: LeftHand
+    humanoid_bone: 18
+  - bvh_name: RightShoulder
+    humanoid_bone: 11
+  - bvh_name: RightArm
+    humanoid_bone: 13
+  - bvh_name: RightForeArm
+    humanoid_bone: 15
+  - bvh_name: RightHand
+    humanoid_bone: 17
