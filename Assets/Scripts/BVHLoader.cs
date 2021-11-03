@@ -49,7 +49,7 @@ public class BVHLoader
             currentBone.channels[5].values[frame]);
 
         int[] order = new int[3] { currentBone.channelOrder[0], currentBone.channelOrder[1], currentBone.channelOrder[2] };
-        Quaternion rotation = Euler2Quat(rotateVector, currentBone.channelOrder);
+        Quaternion rotation = ParserTool.Euler2Quat(rotateVector, currentBone.channelOrder);
         Vector3 newOffset = parent.transform.rotation * offset;
 
         GameObject joint;
@@ -78,27 +78,6 @@ public class BVHLoader
         {
             SetupSkeleton(child, joint, frame);
         }
-    }
-
-    /// <summary>
-    /// 依照ZXY的順序將Quaternion乘起來
-    /// </summary>
-    /// <param name="euler"></param>
-    /// <returns></returns>
-    public Quaternion Euler2Quat(Vector3 euler, int[] order)
-    {
-        if (order[0] == 5 && order[1] == 4 && order[2] == 3)
-            return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(euler.x, 0, 0);
-        else if (order[0] == 5 && order[1] == 3 && order[2] == 4)
-            return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, euler.y, 0);
-        else if (order[0] == 4 && order[1] == 3 && order[2] == 5)
-            return Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(euler.x, 0, 0);
-        else if (order[0] == 4 && order[1] == 5 && order[2] == 3)
-            return Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(euler.x, 0, 0);
-        else if (order[0] == 3 && order[1] == 4 && order[2] == 5)
-            return Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(0, 0, euler.z);
-        else
-            return Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(0, euler.y, 0);
     }
 
     public void SetUpArcLengthParameter()

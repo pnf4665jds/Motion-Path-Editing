@@ -61,7 +61,7 @@ public class MotionPlayer : MonoBehaviour
 
 
             int[] order = new int[3] { parser.root.channelOrder[3], parser.root.channelOrder[4], parser.root.channelOrder[5] };
-            Quaternion rootLocalRot = loader.Euler2Quat(new Vector3(
+            Quaternion rootLocalRot = ParserTool.Euler2Quat(new Vector3(
                 parser.root.channels[3].values[frame],
                 parser.root.channels[4].values[frame],
                 parser.root.channels[5].values[frame]), order);
