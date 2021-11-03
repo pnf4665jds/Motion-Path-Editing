@@ -84,16 +84,92 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         int concatenateStartFrame = firstParser.frames;
         Dictionary<string, string> firstHierarchy = firstParser.getHierachy();
         // 取得第一個Motion的最後一幀Data
-        Dictionary<string, Quaternion> firstKeyframeList = firstParser.getKeyFrame(concatenateStartFrame - 1);
+        Dictionary<string, Vector3> firstKeyframeList = firstParser.getKeyFrameAsVector(concatenateStartFrame - 1);
         Vector3 lastPos = new Vector3(firstKeyframeList["pos"].x, firstKeyframeList["pos"].y, firstKeyframeList["pos"].z);
-        Quaternion lastRot = firstKeyframeList[firstParser.root.name];
+        Vector3 lastRot = firstKeyframeList[firstParser.root.name];
 
         // 取得第二個Motion的第一幀Data
-        Dictionary<string, Quaternion> secondKeyframeList = firstParser.getKeyFrame(0);
+        Dictionary<string, Vector3> secondKeyframeList = secondParser.getKeyFrameAsVector(0);
         Vector3 newPos = new Vector3(secondKeyframeList["pos"].x, secondKeyframeList["pos"].y, secondKeyframeList["pos"].z);
-        Quaternion newRot = secondKeyframeList[secondParser.root.name];
+        Vector3 newRot = secondKeyframeList[secondParser.root.name];
 
         Vector3 offsetPos = lastPos - newPos;
-        //Quaternion offsetRot = lastRot - newRot;
+        Vector3 offsetRot = lastRot - newRot;
+
+        Motion newMotion = new Motion(firstParser);
+        for(int i = 0; i < secondParser.frames; i++)
+        {
+
+        }
+    }
+}
+
+/// <summary>
+/// 這個class用來儲存可以被改動的Motion Data
+/// </summary>
+public class Motion
+{
+    public int totalFrameNum;   // 總Frame數量
+
+    private Dictionary<string, List<Vector3>> frameDataList; // 每個骨架對應的List，List儲存每幀的旋轉值。Pos特別儲存root的位置
+    private BVHParser.BVHBone rootBone;
+
+    public Motion()
+    {
+
+    }
+
+    public Motion(BVHParser parser)
+    {
+        totalFrameNum = parser.frames;
+        rootBone = parser.root;
+        List<BVHParser.BVHBone> boneList = parser.getBoneList();
+
+        frameDataList["pos"] = new List<Vector3>();
+        foreach (BVHParser.BVHBone bone in boneList)
+        {
+            frameDataList[bone.name] = new List<Vector3>();
+        }
+
+        for (int i = 0; i < totalFrameNum; i++) {
+            var frameData = parser.getKeyFrameAsVector(i);
+            Vector3 rootPos = frameData["pos"];
+            frameDataList["pos"].Add(rootPos);
+            foreach(BVHParser.BVHBone bone in parser.getBoneList())
+            {
+                Vector3 rot = frameData[bone.name];
+                frameDataList[bone.name].Add(rot);
+            }
+        }
+    }
+
+    public Vector3 GetRootPosition(int frame)
+    {
+        return frameDataList["pos"][frame];
+    }
+
+    public Vector3 GetRotation(string name, int frame)
+    {
+        return frameDataList[name][frame];
+    }
+
+    /// <summary>
+    /// 新增一個Frame的資料
+    /// </summary>
+    /// <param name="newBoneData"></param>
+    public void AddNewFrame(Dictionary<string, Vector3> newBoneData)
+    {
+        foreach(string bone in newBoneData.Keys)
+        {
+            
+            if (newBoneData.TryGetValue(bone, out Vector3 data))
+            {
+                frameDataList[bone].Add(data);
+            }
+            else
+            {
+                Debug.LogError("Add new frame failed! Can't find " + bone);
+            }
+        }
     }
 }

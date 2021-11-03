@@ -475,7 +475,7 @@ public class BVHParser
     }
 
     /// <summary>
-    /// 回傳每個bone的旋轉值，root的pos存放在"pos"這個key內
+    /// 回傳每個bone的旋轉值，root的pos存放在"pos"這個key內，以Quaternion形式儲存
     /// </summary>
     /// <param name="frameIdx"></param>
     /// <returns></returns>
@@ -505,6 +505,37 @@ public class BVHParser
         return boneData;
     }
 
+    /// <summary>
+    /// 回傳每個bone的旋轉值，root的pos存放在"pos"這個key內，以Vector3形式儲存
+    /// </summary>
+    /// <param name="frameIdx"></param>
+    /// <returns></returns>
+    public Dictionary<string, Vector3> getKeyFrameAsVector(int frameIdx)
+    {
+        Dictionary<string, string> hierachy = getHierachy();
+        Dictionary<string, Vector3> boneData = new Dictionary<string, Vector3>();
+        boneData.Add("pos", new Vector3(
+            boneList[0].channels[0].values[frameIdx],
+            boneList[0].channels[1].values[frameIdx],
+            boneList[0].channels[2].values[frameIdx]));
+
+        boneData.Add(boneList[0].name, new Vector3(
+                boneList[0].channels[3].values[frameIdx],
+                boneList[0].channels[4].values[frameIdx],
+                boneList[0].channels[5].values[frameIdx]));
+        foreach (BVHBone bb in boneList)
+        {
+            if (bb.name != boneList[0].name)
+            {
+                Vector3 localrot = new Vector3(bb.channels[3].values[frameIdx],
+                    bb.channels[4].values[frameIdx],
+                    bb.channels[5].values[frameIdx]);
+                boneData.Add(bb.name, localrot);
+            }
+        }
+        return boneData;
+    }
+
     public Dictionary<string, Vector3> getOffset(float ratio)
     {
         Dictionary<string, Vector3> offset = new Dictionary<string, Vector3>();
@@ -513,6 +544,15 @@ public class BVHParser
             offset.Add(bb.name, new Vector3(bb.offsetX * ratio, bb.offsetY * ratio, bb.offsetZ * ratio));
         }
         return offset;
+    }
+
+    /// <summary>
+    /// 取得紀錄所有Bone的List
+    /// </summary>
+    /// <returns></returns>
+    public List<BVHBone> getBoneList()
+    {
+        return boneList;
     }
 }
 
