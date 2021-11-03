@@ -24,6 +24,9 @@ public class MotionPlayer : MonoBehaviour
         mainBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
         mainBezier.concretePoints[3].transform.position = new Vector3(controlPoints.m30, controlPoints.m31, controlPoints.m32) + new Vector3(0, 0, 0);
 
+        // 關掉其中一條Curve的控制點
+        mainBezier.concretePoints.ForEach(p => p.SetActive(false));
+
         secondLoader = new BVHLoader();
         secondLoader.Init(fileName);
         secondBezier.Init();

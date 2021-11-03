@@ -13,7 +13,7 @@ public class RunTimeBezier : MonoBehaviour
         for (int i = 0; i < 4; i++)
         {
             var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.transform.localScale = new Vector3(1f, 1f, 1f);
+            cube.transform.localScale = new Vector3(10f, 10f, 10f);
             cube.transform.position = new Vector3(i*10, 0, 0);
 
             cube.AddComponent<DragPoint>();

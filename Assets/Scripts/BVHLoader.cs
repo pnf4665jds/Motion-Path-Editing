@@ -99,7 +99,6 @@ public class BVHLoader
             return Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(0, 0, euler.z);
         else
             return Quaternion.Euler(euler.x, 0, 0) * Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(0, euler.y, 0);
-        return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(euler.x, 0, 0);
     }
 
     public void SetUpArcLengthParameter()
