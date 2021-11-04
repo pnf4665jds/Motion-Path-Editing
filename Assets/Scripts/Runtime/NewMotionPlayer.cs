@@ -18,7 +18,8 @@ public class NewMotionPlayer : MonoBehaviour
     private NewBVHDriver modelDriver1;
     private NewBVHDriver modelDriver2;
 
-
+    GameObject skeleton1Root;
+    GameObject skeleton2Root;
 
     [Serializable]
     public struct BoneMap
@@ -42,6 +43,9 @@ public class NewMotionPlayer : MonoBehaviour
 
     private void Start()
     {
+        skeleton1Root = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        skeleton2Root = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
         boneMaps = new BoneMap[18] {
         new BoneMap("Hips",HumanBodyBones.Hips),
         new BoneMap("LeftUpLeg", HumanBodyBones.RightUpperLeg),
@@ -94,6 +98,7 @@ public class NewMotionPlayer : MonoBehaviour
     {
         BVHParser parser = bvd.parser;
         int frame = 0;
+        
         //List<float> chordLengthParamterList = loader.GetChordLengthParameterList();
         while (true)
         {
@@ -113,20 +118,23 @@ public class NewMotionPlayer : MonoBehaviour
                 parser.root.channels[4].values[frame],
                 parser.root.channels[5].values[frame]), order);
 
-            //float t = chordLengthParamterList[frame];
+            skeleton1Root.transform.position = rootLocalPos;
+            skeleton1Root.transform.rotation = rootLocalRot;
 
-            //bvd.Root().position = rootLocalPos;
-            //bvd.Root().rotation = rootLocalRot;
-            bvd.UpdateRootMotion(rootLocalPos, rootLocalRot, bvd.GetScaleRatio());
-            bvd.MotionUpdate(frame, bvd.Root().rotation);
-            /*foreach (string bname in bvd.bvhHireachy.Keys)
+            bvd.Root().position = rootLocalPos;
+            bvd.Root().rotation = rootLocalRot;
+
+            UpdateNewMotion(bezier, skeleton1Root.transform, frame);
+
+            bvd.MotionUpdateByFrame(frame, bvd.Root().gameObject);
+            /*foreach (BVHParser.BVHBone child in parser.root.children)
             {
-                if (bvd.bvhHireachy[bname] == "Hips")
-                {
-                    bvd.MotionUpdate2(bname, bvd.Root(), frame);
-                }
+
+                bvd.SetupSkeleton(child, bvd.Root().rotation, 0);
             }*/
-            UpdateNewMotion(bezier, bvd.Root(), frame);
+
+            
+           
 
             frame++;
             yield return new WaitForSeconds(parser.frameTime);
@@ -157,12 +165,25 @@ public class NewMotionPlayer : MonoBehaviour
             bezier.GetTranslationMatrix(t).inverse;
 
         Matrix4x4 FinalTransformMatrix = TransformMatrix * originalRoot.transform.localToWorldMatrix;
-        //driver2.Root().position = FinalTransformMatrix.ExtractPosition();
-        //driver2.Root().rotation = FinalTransformMatrix.ExtractRotation();
 
-        Debug.Log(originalRoot.localRotation);
+        skeleton2Root.transform.position = FinalTransformMatrix.ExtractPosition();
+        skeleton2Root.transform.rotation = FinalTransformMatrix.ExtractRotation();
+        driver2.Root().position = FinalTransformMatrix.ExtractPosition();
+        driver2.Root().rotation = FinalTransformMatrix.ExtractRotation();
+        Color color = Color.blue;
+        Debug.DrawLine(driver2.Root().position, driver2.Root().position + driver2.Root().forward * 20, color);
+        Debug.DrawLine(originalRoot.transform.position, originalRoot.transform.position + originalRoot.transform.forward * 20, color);
+        if (driver2.Root().rotation != originalRoot.transform.rotation) 
+        {
+            print("different" + driver2.Root().rotation   + " , " + originalRoot.transform.rotation);
+        }
+        //driver2.Root().position = originalRoot.transform.position;
+       // driver2.Root().rotation = originalRoot.transform.rotation;
+
+        
         //driver2.UpdateRootMotion(FinalTransformMatrix.ExtractPosition(),
         //FinalTransformMatrix.ExtractRotation(), 1f);
+
 
         //driver2.MotionUpdate(frame, driver2.Root().rotation);
         /*foreach(string bname in driver2.bvhHireachy.Keys) 
@@ -173,12 +194,16 @@ public class NewMotionPlayer : MonoBehaviour
 
             }
         }*/
-        foreach (BVHParser.BVHBone child in parser.root.children) 
+        /*foreach (BVHParser.BVHBone child in parser.root.children) 
         {
-            driver2.SetupSkeleton(child, driver2.Root(), frame);
-        }
+
+            driver2.SetupSkeleton(child, driver2.Root().rotation, 0);
+        }*/
+
+        driver2.MotionUpdateByFrame(frame, driver2.Root().gameObject);
 
     }
+
 
 
 
