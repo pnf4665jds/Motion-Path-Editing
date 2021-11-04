@@ -42,6 +42,7 @@ public class NewBVHDriver : MonoBehaviour
         {
             BVHToAvatar.Add(boneMaps[i].bvh_name, boneMaps[i].humanoid_bone);
         }
+
         this.parser = bp;
         this.bonemaps = boneMaps;
 
@@ -132,6 +133,55 @@ public class NewBVHDriver : MonoBehaviour
          //anim.GetBoneTransform(HumanBodyBones.Hips).position = new Vector3(bvhPos[parser.root.name].x, bvhPos[parser.root.name].y*scaleRatio, bvhPos[parser.root.name].z);
         drawSleleton(bvhPos);
     }
+
+    public void MotionUpdateByFrame(int frameIdx, GameObject root)
+    {
+        Dictionary<string, Quaternion> currFrame = getCurrentKeyFrame(frameIdx, root);//frameIdx 2871
+
+        
+        foreach (NewMotionPlayer.BoneMap bm in bonemaps)
+        {
+
+            if (FirstT)
+            {
+
+                Transform currBone = anim.GetBoneTransform(bm.humanoid_bone);
+                currBone.rotation = (currFrame[bm.bvh_name] * Quaternion.Inverse(bvhT[bm.bvh_name])) * unityT[bm.humanoid_bone];
+
+
+            }
+            else
+            {
+                Transform currBone = anim.GetBoneTransform(bm.humanoid_bone);
+                currBone.rotation = currFrame[bm.bvh_name] * unityT[bm.humanoid_bone];
+
+            }
+
+        }
+
+        // draw bvh skeleton
+        Dictionary<string, Vector3> bvhPos = new Dictionary<string, Vector3>();
+        foreach (string bname in currFrame.Keys)
+        {
+            if (bname == "pos")
+            {
+                bvhPos.Add(parser.root.name, new Vector3(currFrame["pos"].x, currFrame["pos"].y, currFrame["pos"].z));
+            }
+            else
+            {
+                if (bvhHireachy.ContainsKey(bname) && bname != parser.root.name)
+                {
+                    Vector3 curpos = bvhPos[bvhHireachy[bname]] + currFrame[bvhHireachy[bname]] * bvhOffset[bname];
+                    bvhPos.Add(bname, curpos);
+                }
+            }
+        }
+
+        //anim.GetBoneTransform(HumanBodyBones.Hips).position = new Vector3(bvhPos[parser.root.name].x, bvhPos[parser.root.name].y*scaleRatio, bvhPos[parser.root.name].z);
+        drawSleleton(bvhPos);
+       
+    }
+
     public void MotionUpdate2(string currentBone, Transform parent, int frame)
     {
         Dictionary<string, Quaternion> currFrame = parser.getKeyFrame(frame);
@@ -156,6 +206,7 @@ public class NewBVHDriver : MonoBehaviour
             //print(rotationc);
         }
 
+
         foreach (string child in bvhHireachy.Keys)
         {
             if (bvhHireachy[child] == currentBone)
@@ -164,39 +215,53 @@ public class NewBVHDriver : MonoBehaviour
             }
         }
     }
-
-    public void SetupSkeleton(BVHParser.BVHBone currentBone, Transform parent, int frame)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="currentBone"></param>
+    /// <param name="parent"></param>
+    /// <param name="frame"></param>
+    /// <param name="anim">driver1 anim: to get driver1 armature</param>
+    public void SetupSkeleton(BVHParser.BVHBone currentBone, Quaternion parent, int frame)
     {
 
-        Vector3 offset = new Vector3(currentBone.offsetX, currentBone.offsetY, currentBone.offsetZ);
+
         Vector3 rotateVector = new Vector3(
             currentBone.channels[3].values[frame],
             currentBone.channels[4].values[frame],
             currentBone.channels[5].values[frame]);
 
-        int[] order = new int[3] { currentBone.channelOrder[0], currentBone.channelOrder[1], currentBone.channelOrder[2] };
         Quaternion rotation = ParserTool.Euler2Quat(rotateVector, currentBone.channelOrder);
 
-
+        Quaternion parentRotatoin = parent;
         //get the anim transform
         HumanBodyBones currentJoint;
 
         if (BVHToAvatar.TryGetValue(currentBone.name, out currentJoint))
         {
-            Quaternion T3 = parent.transform.rotation * rotation;
-            Quaternion T2 = parent.transform.rotation * ParserTool.Euler2Quat(newBvhT[currentBone.name], currentBone.channelOrder);
+            Quaternion T3 = rotation * parent;
+            Quaternion T2 = ParserTool.Euler2Quat(newBvhT[currentBone.name], currentBone.channelOrder) * parent ;
 
             //anim.GetBoneTransform(currentJoint).rotation = parent.rotation * current_rot ;
             //var rotationc = (current_rot * Quaternion.Inverse(bvhT[currentBone]))* unityT[currentJoint] ;
-            var rotationc = (T3 * Quaternion.Inverse(T2)) * unityT[currentJoint];
-            anim.GetBoneTransform(currentJoint).rotation = rotationc;
-            //print(rotationc);
 
-            
+            //for the model
+            var rotationc = (T3 * Quaternion.Inverse(T2)) * unityT[currentJoint];
+            anim.GetBoneTransform(currentJoint).rotation = rotationc; 
+
+            //如果有實體的parent
+            //parentRotatoin = anim.GetBoneTransform(currentJoint).rotation;
+            parentRotatoin = T3;
+
+            /*Transform currentBoneT = anim.GetBoneTransform(currentJoint);
+            currentBoneT.rotation = driver1Anim.GetBoneTransform(currentJoint).rotation * parent;
+            parentRotatoin = currentBoneT.rotation;*/
         }
+
+        
         foreach (BVHParser.BVHBone child in currentBone.children)
         {
-            SetupSkeleton(child, anim.GetBoneTransform(currentJoint), frame);
+            SetupSkeleton(child, parentRotatoin, frame);
         }
 
     }
@@ -215,6 +280,35 @@ public class NewBVHDriver : MonoBehaviour
         }
     }
 
+
+    public Dictionary<string, Quaternion> getCurrentKeyFrame(int frameIdx, GameObject root)
+    {
+        Dictionary<string, string> hierachy = bvhHireachy;
+        Dictionary<string, Quaternion> boneData = new Dictionary<string, Quaternion>();
+
+        boneData.Add("pos", new Quaternion(
+            root.transform.position.x,
+            root.transform.position.y,
+            root.transform.position.z, 0));
+
+        boneData.Add(parser.getBoneList()[0].name, root.transform.rotation);
+
+        foreach (BVHParser.BVHBone bb in parser.getBoneList())
+        {
+            if (bb.name != parser.getBoneList()[0].name)
+            {
+
+                Quaternion localrot = ParserTool.Euler2Quat(new Vector3(
+                    bb.channels[3].values[frameIdx],
+                    bb.channels[4].values[frameIdx],
+                    bb.channels[5].values[frameIdx]), bb.channelOrder);
+
+                boneData.Add(bb.name, boneData[hierachy[bb.name]] * localrot);
+
+            }
+        }
+        return boneData;
+    }
 
 
     public void SetUpArcLengthParameter()
@@ -310,5 +404,9 @@ public class NewBVHDriver : MonoBehaviour
         }
 
         return matA.inverse * matB;
+    }
+    private void dynamicBoneData() 
+    {
+        
     }
 }
