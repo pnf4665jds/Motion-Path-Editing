@@ -292,16 +292,16 @@ public class NewBVHDriver : MonoBehaviour
             root.transform.position.z, 0));
 
         boneData.Add(parser.getBoneList()[0].name, root.transform.rotation);
-
+        int[] order;
         foreach (BVHParser.BVHBone bb in parser.getBoneList())
         {
             if (bb.name != parser.getBoneList()[0].name)
             {
-
+                order = new int[3] { bb.channelOrder[0], bb.channelOrder[1], bb.channelOrder[2] };
                 Quaternion localrot = ParserTool.Euler2Quat(new Vector3(
                     bb.channels[3].values[frameIdx],
                     bb.channels[4].values[frameIdx],
-                    bb.channels[5].values[frameIdx]), bb.channelOrder);
+                    bb.channels[5].values[frameIdx]), order);
 
                 boneData.Add(bb.name, boneData[hierachy[bb.name]] * localrot);
 
