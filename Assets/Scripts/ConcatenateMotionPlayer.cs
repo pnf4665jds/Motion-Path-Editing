@@ -99,10 +99,10 @@ public class ConcatenateMotionPlayer : MonoBehaviour
             Dictionary<string, Vector3> newData = new Dictionary<string, Vector3>();
             Dictionary<string, Vector3> concatenateFrameData = secondParser.getKeyFrameAsVector(i);
             // 因為裡面已經有第一段Motion的Data，可以直接取用
-            Vector3 oldRootPos = concatenateMotion.GetRootPosition(i);
-            Vector3 oldRootRot = concatenateMotion.GetRotation(secondParser.root.name, i);
-            newData.Add("pos", oldRootPos + offsetPos);
-            newData.Add(firstParser.root.name, oldRootRot + offsetRot);
+            Vector3 oldRootPos = concatenateFrameData["pos"];
+            Vector3 oldRootRot = concatenateFrameData[firstParser.root.name];
+            newData.Add("pos", oldRootPos - newPos + lastPos);
+            newData.Add(firstParser.root.name, oldRootRot);
             // 將除了root以外的各關節旋轉Data從第二段Motion複製過來
             foreach(string boneName in concatenateFrameData.Keys)
             {
@@ -113,7 +113,7 @@ public class ConcatenateMotionPlayer : MonoBehaviour
             }
             concatenateMotion.AddNewFrame(newData);
         }
-        //concatenateMotion.Smooth(secondParser, concatenateStartFrame - 1, 30);
+        concatenateMotion.Smooth(secondParser, concatenateStartFrame - 1, 30);
 
         return concatenateMotion;
     }
