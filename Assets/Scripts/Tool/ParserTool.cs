@@ -11,6 +11,11 @@ public class ParserTool
     /// <returns></returns>
     public static Quaternion Euler2Quat(Vector3 euler, int[] order)
     {
+        if(order.Length != 3)
+        {
+            Debug.LogError("Order array size should be 3");
+        }
+
         if (order[0] == 5 && order[1] == 4 && order[2] == 3)
             return Quaternion.Euler(0, 0, euler.z) * Quaternion.Euler(0, euler.y, 0) * Quaternion.Euler(euler.x, 0, 0);
         else if (order[0] == 5 && order[1] == 3 && order[2] == 4)

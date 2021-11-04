@@ -48,8 +48,9 @@ public class BVHLoader
             currentBone.channels[4].values[frame],
             currentBone.channels[5].values[frame]);
 
+        // joint的order記錄在index0, 1, 2
         int[] order = new int[3] { currentBone.channelOrder[0], currentBone.channelOrder[1], currentBone.channelOrder[2] };
-        Quaternion rotation = ParserTool.Euler2Quat(rotateVector, currentBone.channelOrder);
+        Quaternion rotation = ParserTool.Euler2Quat(rotateVector, order);
         Vector3 newOffset = parent.transform.rotation * offset;
 
         GameObject joint;
@@ -77,6 +78,50 @@ public class BVHLoader
         foreach (BVHParser.BVHBone child in currentBone.children)
         {
             SetupSkeleton(child, joint, frame);
+        }
+    }
+
+    /// <summary>
+    /// 根據frame設置joint位置
+    /// </summary>
+    /// <param name="currentBone"></param>
+    /// <param name="parent"></param>
+    /// <param name="frame"></param>
+    public void SetupSkeleton(BVHParser.BVHBone currentBone, GameObject parent, int frame, Motion concatenateMotion)
+    {
+        Vector3 offset = new Vector3(currentBone.offsetX, currentBone.offsetY, currentBone.offsetZ);
+        Vector3 rotateVector = concatenateMotion.GetRotation(currentBone.name, frame);
+
+        // joint的order記錄在index0, 1, 2
+        int[] order = new int[3] { currentBone.channelOrder[0], currentBone.channelOrder[1], currentBone.channelOrder[2] };
+        Quaternion rotation = ParserTool.Euler2Quat(rotateVector, order);
+        Vector3 newOffset = parent.transform.rotation * offset;
+
+        GameObject joint;
+        LineRenderer renderer;
+        if (!jointDic.TryGetValue(currentBone, out joint))
+        {
+            joint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            joint.transform.parent = parent.transform;
+            joint.name = currentBone.name + "_Joint";
+            joint.AddComponent<LineRenderer>();
+            jointDic.Add(currentBone, joint);
+        }
+
+        // joint global position = parent global position + (parent global rotation * offset)
+        joint.transform.position = parent.transform.position + newOffset;
+        // joint global rotation = parent global rotation * joint local rotation
+        joint.transform.rotation = parent.transform.rotation * rotation;
+
+        // 利用LineRenderer畫Bone
+        renderer = joint.GetComponent<LineRenderer>();
+        renderer.material.SetColor("_Color", Color.blue);
+        renderer.SetPosition(0, parent.transform.position);
+        renderer.SetPosition(1, joint.transform.position);
+
+        foreach (BVHParser.BVHBone child in currentBone.children)
+        {
+            SetupSkeleton(child, joint, frame, concatenateMotion);
         }
     }
 
