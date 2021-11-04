@@ -10,6 +10,7 @@ public class ConcatenateMotionPlayer : MonoBehaviour
     public BVHLoader secondLoader;
     public RunTimeBezier firstBezier;
     public RunTimeBezier secondBezier;
+    public bool smooth = true;
 
     private BVHParser firstParser;
     private BVHParser secondParser;
@@ -84,7 +85,7 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         Vector3 lastRot = firstKeyframeList[firstParser.root.name];
 
         // 取得第二個Motion的第一幀Data
-        Dictionary<string, Vector3> secondKeyframeList = secondParser.getKeyFrameAsVector(1);
+        Dictionary<string, Vector3> secondKeyframeList = secondParser.getKeyFrameAsVector(0);
         Vector3 newPos = new Vector3(secondKeyframeList["pos"].x, secondKeyframeList["pos"].y, secondKeyframeList["pos"].z);
         Vector3 newRot = secondKeyframeList[secondParser.root.name];
 
@@ -94,15 +95,15 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         // 建立一個Motion，並利用第一段Motion初始化
         Motion concatenateMotion = new Motion(firstParser);
        
-        for(int i = 1; i < secondParser.frames; i++)
+        for(int i = 0; i < secondParser.frames; i++)
         {
             Dictionary<string, Vector3> newData = new Dictionary<string, Vector3>();
             Dictionary<string, Vector3> concatenateFrameData = secondParser.getKeyFrameAsVector(i);
             // 因為裡面已經有第一段Motion的Data，可以直接取用
             Vector3 oldRootPos = concatenateFrameData["pos"];
             Vector3 oldRootRot = concatenateFrameData[firstParser.root.name];
-            newData.Add("pos", oldRootPos - newPos + lastPos);
-            newData.Add(firstParser.root.name, oldRootRot);
+            newData.Add("pos", oldRootPos + offsetPos);
+            newData.Add(firstParser.root.name, oldRootRot + offsetRot);
             // 將除了root以外的各關節旋轉Data從第二段Motion複製過來
             foreach(string boneName in concatenateFrameData.Keys)
             {
@@ -113,7 +114,8 @@ public class ConcatenateMotionPlayer : MonoBehaviour
             }
             concatenateMotion.AddNewFrame(newData);
         }
-        concatenateMotion.Smooth(secondParser, concatenateStartFrame - 1, 30);
+        if(smooth)
+            concatenateMotion.Smooth(secondParser, concatenateStartFrame - 1, 30);
 
         return concatenateMotion;
     }
@@ -196,10 +198,10 @@ public class Motion
     /// <param name="parser"></param>
     /// <param name="concatenateStartFrame"></param>
     /// <param name="smoothWindow"></param>
-    public void Smooth(BVHParser parser, int concatenateStartFrame, int smoothWindow)
+    public void Smooth(BVHParser parser, int firstMotionLastFrameIndex, int smoothWindow)
     {
-        int smoothStartFrame = concatenateStartFrame - smoothWindow;
-        int smoothEndFrame = concatenateStartFrame + smoothWindow;
+        int smoothStartFrame = firstMotionLastFrameIndex - smoothWindow;    // 使用walk_loop.bvh + dance.bvh時為第58幀
+        int smoothEndFrame = firstMotionLastFrameIndex + smoothWindow;
 
         List<BVHParser.BVHBone> boneList = parser.getBoneList();
         // 初始化offset list
@@ -207,23 +209,24 @@ public class Motion
         offsetList.Add("pos", new Vector3());
         boneList.ForEach(bone => offsetList.Add(bone.name, new Vector3()));
 
+        // 計算smooth範圍內root的位移
+        Vector3 previousPos = frameDataList["pos"][firstMotionLastFrameIndex];
+        Vector3 newPos = frameDataList["pos"][firstMotionLastFrameIndex + 1];
+        offsetList["pos"] = newPos - previousPos;
+
+        foreach (BVHParser.BVHBone bone in boneList)
+        {
+            // 計算smooth範圍內每個bone的旋轉變化量
+            Vector3 previousRot = frameDataList[bone.name][firstMotionLastFrameIndex];
+            Vector3 newRot = frameDataList[bone.name][firstMotionLastFrameIndex + 1];
+            offsetList[bone.name] = newRot - previousRot;
+        }
+
         for (int frameIndex = smoothStartFrame; frameIndex < smoothEndFrame + 1; frameIndex++)
         {
-            // 計算smooth範圍內root的位移
-            Vector3 previousPos = frameDataList["pos"][concatenateStartFrame];
-            Vector3 newPos = frameDataList["pos"][concatenateStartFrame + 1];
-            offsetList["pos"] = newPos - previousPos;
-
-            foreach(BVHParser.BVHBone bone in boneList)
-            {
-                // 計算smooth範圍內每個bone的旋轉變化量
-                Vector3 previousRot = frameDataList[bone.name][concatenateStartFrame];
-                Vector3 newRot = frameDataList[bone.name][concatenateStartFrame + 1];
-                offsetList[bone.name] = newRot - previousRot;
-            }
             if(frameIndex > 0 && frameIndex < totalFrameNum)
             {
-                float smoothFactor = SmoothFunction(frameIndex, concatenateStartFrame, smoothWindow);
+                float smoothFactor = SmoothFunction(frameIndex, firstMotionLastFrameIndex, smoothWindow);
                 frameDataList["pos"][frameIndex] += smoothFactor * offsetList["pos"];
                 foreach (BVHParser.BVHBone bone in boneList)
                 {
@@ -238,12 +241,12 @@ public class Motion
         // reference from maochinn and https://www.cs.toronto.edu/~jacobson/seminar/arikan-and-forsyth-2002.pdf
         float res = 0;
         int diff = curremtFrame - concatenateFrame;
-        float diffNorm = (diff + smoothWindow) / smoothWindow;
-        if (Mathf.Abs(diff) > smoothWindow)
+        float diffNorm = ((float)(diff + smoothWindow)) / smoothWindow;
+        if (Mathf.Abs(diff) >= smoothWindow)
         {
             res = 0;
         }
-        else if (curremtFrame > concatenateFrame - smoothWindow && curremtFrame <= concatenateFrame)
+        else if (curremtFrame > (concatenateFrame - smoothWindow) && curremtFrame <= concatenateFrame)
         {
             res = 0.5f * (diffNorm * diffNorm);
         }

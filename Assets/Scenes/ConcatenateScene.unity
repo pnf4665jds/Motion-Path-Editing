@@ -258,6 +258,7 @@ MonoBehaviour:
   fileName2: dance.bvh
   firstBezier: {fileID: 1002571044}
   secondBezier: {fileID: 1317642139}
+  smooth: 1
 --- !u!4 &434143421
 Transform:
   m_ObjectHideFlags: 0
