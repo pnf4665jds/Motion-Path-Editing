@@ -8,6 +8,8 @@ public class RunTimeBezier : MonoBehaviour
     public LineRenderer Lr;
     public float Speed = 1;
     //private GameObject[] concreteObject = new GameObject[4]; 
+
+    private Vector3 p0, p1, p2, p3;
     public void Init(bool isShowPoint)
     {
         for (int i = 0; i < 4; i++)
@@ -45,10 +47,10 @@ public class RunTimeBezier : MonoBehaviour
     {
         if (concretePoints.Count <= 0) { return; }
 
-        Vector3 p0 = concretePoints[0].transform.position;
-        Vector3 p1 = concretePoints[1].transform.position;
-        Vector3 p2 = concretePoints[2].transform.position;
-        Vector3 p3 = concretePoints[3].transform.position;
+        p0 = concretePoints[0].transform.position;
+        p1 = concretePoints[1].transform.position;
+        p2 = concretePoints[2].transform.position;
+        p3 = concretePoints[3].transform.position;
 
         Vector3 p = Bezier.GetPoint(p0, p1, p2, p3, 0);
         Lr.SetPosition(0, p);
@@ -60,6 +62,63 @@ public class RunTimeBezier : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// for the arc length
+    /// </summary>
+    /// <param name="t"></param>
+    /// <returns></returns>
+    public Vector3 GetPoint(float t) 
+    {
+        return Bezier.GetPoint(p0, p1, p2, p3, t);
+    }
+    public Vector3 GetPointDerivation(float t)
+    {
+        return Bezier.GetFirstDerivative(p0, p1, p2, p3, t);
+    }
+
+    /// <summary>
+    /// get the arc length point
+    /// </summary>
+    /// <param name="progress"></param>
+    /// <param name="length"></param>
+    /// <returns></returns>
+    public float ArcLengthProgress(float progress, float length) 
+    {
+        progress += length / Mathf.Sqrt(Mathf.Pow(GetPointDerivation(progress).x, 2) + Mathf.Pow(GetPointDerivation(progress).y, 2)
+                + Mathf.Pow(GetPointDerivation(progress).z, 2));
+
+        return progress;
+    }
+
+    /// <summary>
+    /// 獲取當前這條spline line 的長度
+    /// </summary>
+    /// <param name="slice"></param>
+    /// <returns></returns>
+    public float GetBezierLength(float slice) 
+    {
+        Vector3 prevPos = Vector3.zero;
+        float totalDistance = 0;
+        float stepSize = (float)1 / slice;
+
+        //get the arc length
+        for (int f = 0; f < slice; f++)
+        {
+            if (f == 0)
+            {
+                prevPos = GetPoint(f * stepSize);
+            }
+            else
+            {
+                totalDistance += Vector3.Distance(GetPoint(f * stepSize), prevPos);
+
+                prevPos = GetPoint(f * stepSize);
+            }
+
+        }
+
+        return totalDistance;
+    }
     /// <summary>
     /// 取得Path上的平移矩陣
     /// </summary>
