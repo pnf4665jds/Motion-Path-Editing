@@ -24,7 +24,7 @@ public class ConcatenateMotionPlayer : MonoBehaviour
 
         firstParser = firstLoader.parser;
 
-        firstBezier.Init(true);
+        firstBezier.Init(false);
         firstBezier.concretePoints[0].transform.position = new Vector3(controlPoints.m00, controlPoints.m01, controlPoints.m02) + new Vector3(0, 0, 0);
         firstBezier.concretePoints[1].transform.position = new Vector3(controlPoints.m10, controlPoints.m11, controlPoints.m12) + new Vector3(0, 0, 0);
         firstBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
@@ -33,11 +33,38 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         // 建置第二個Motion相關參數
         secondLoader = new BVHLoader();
         secondLoader.Init(fileName2);
+        Matrix4x4 secondControlPoints = secondLoader.SolveFitCurve();
 
         secondParser = secondLoader.parser;
 
+        secondBezier.Init(false);
+        secondBezier.concretePoints[0].transform.position = new Vector3(secondControlPoints.m00, secondControlPoints.m01, secondControlPoints.m02) + new Vector3(0, 0, 0);
+        secondBezier.concretePoints[1].transform.position = new Vector3(secondControlPoints.m10, secondControlPoints.m11, secondControlPoints.m12) + new Vector3(0, 0, 0);
+        secondBezier.concretePoints[2].transform.position = new Vector3(secondControlPoints.m20, secondControlPoints.m21, secondControlPoints.m22) + new Vector3(0, 0, 0);
+        secondBezier.concretePoints[3].transform.position = new Vector3(secondControlPoints.m30, secondControlPoints.m31, secondControlPoints.m32) + new Vector3(0, 0, 0);
+
         Motion concatenateMotion = Concatenate();
-        StartCoroutine(Play(firstLoader, firstBezier, concatenateMotion));
+        StartCoroutine(Play(firstLoader, concatenateMotion));
+
+        Vector3 firstBezierEnd = Bezier.GetPoint(firstBezier.concretePoints[0].transform.position,
+                                                 firstBezier.concretePoints[1].transform.position,
+                                                 firstBezier.concretePoints[2].transform.position,
+                                                 firstBezier.concretePoints[3].transform.position, 1);
+
+        Vector3 secondBezierStart = Bezier.GetPoint(secondBezier.concretePoints[0].transform.position,
+                                                 secondBezier.concretePoints[1].transform.position,
+                                                 secondBezier.concretePoints[2].transform.position,
+                                                 secondBezier.concretePoints[3].transform.position, 0);
+
+        Vector3 offsetPos = firstBezierEnd - secondBezierStart;
+        secondBezier.concretePoints[0].transform.position += offsetPos;
+        secondBezier.concretePoints[1].transform.position += offsetPos;
+        secondBezier.concretePoints[2].transform.position += offsetPos;
+        secondBezier.concretePoints[3].transform.position += offsetPos;
+
+        firstBezier.LogicalUpdate();
+        secondBezier.LogicalUpdate();
+        secondLoader.rootJoint.SetActive(false);
     }
 
     /// <summary>
@@ -45,14 +72,13 @@ public class ConcatenateMotionPlayer : MonoBehaviour
     /// </summary>
     /// <param name="parser"></param>
     /// <returns></returns>
-    public IEnumerator Play(BVHLoader loader, RunTimeBezier bezier, Motion concatenateMotion)
+    public IEnumerator Play(BVHLoader loader, Motion concatenateMotion)
     {
         BVHParser parser = loader.parser;
         int frame = 1;
 
         while (true)
         {
-            bezier.LogicalUpdate();
             if (frame >= concatenateMotion.totalFrameNum)
                 frame = 1;
 
