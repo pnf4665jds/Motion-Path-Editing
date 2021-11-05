@@ -24,7 +24,7 @@ public class ConcatenateMotionPlayer : MonoBehaviour
 
         firstParser = firstLoader.parser;
 
-        firstBezier.Init(true);
+        firstBezier.Init(false);
         firstBezier.concretePoints[0].transform.position = new Vector3(controlPoints.m00, controlPoints.m01, controlPoints.m02) + new Vector3(0, 0, 0);
         firstBezier.concretePoints[1].transform.position = new Vector3(controlPoints.m10, controlPoints.m11, controlPoints.m12) + new Vector3(0, 0, 0);
         firstBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
@@ -37,7 +37,7 @@ public class ConcatenateMotionPlayer : MonoBehaviour
 
         secondParser = secondLoader.parser;
 
-        secondBezier.Init();
+        secondBezier.Init(false);
         secondBezier.concretePoints[0].transform.position = new Vector3(secondControlPoints.m00, secondControlPoints.m01, secondControlPoints.m02) + new Vector3(0, 0, 0);
         secondBezier.concretePoints[1].transform.position = new Vector3(secondControlPoints.m10, secondControlPoints.m11, secondControlPoints.m12) + new Vector3(0, 0, 0);
         secondBezier.concretePoints[2].transform.position = new Vector3(secondControlPoints.m20, secondControlPoints.m21, secondControlPoints.m22) + new Vector3(0, 0, 0);
@@ -64,9 +64,6 @@ public class ConcatenateMotionPlayer : MonoBehaviour
 
         firstBezier.LogicalUpdate();
         secondBezier.LogicalUpdate();
-
-        firstBezier.concretePoints.ForEach(p => p.SetActive(false));
-        secondBezier.concretePoints.ForEach(p => p.SetActive(false));
         secondLoader.rootJoint.SetActive(false);
     }
 
