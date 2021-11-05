@@ -9,7 +9,7 @@ public class RuntimeCurveDriver : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Rt.Init();
+        Rt.Init(true);
     }
 
     // Update is called once per frame

@@ -24,7 +24,7 @@ public class ConcatenateMotionPlayer : MonoBehaviour
 
         firstParser = firstLoader.parser;
 
-        firstBezier.Init();
+        firstBezier.Init(true);
         firstBezier.concretePoints[0].transform.position = new Vector3(controlPoints.m00, controlPoints.m01, controlPoints.m02) + new Vector3(0, 0, 0);
         firstBezier.concretePoints[1].transform.position = new Vector3(controlPoints.m10, controlPoints.m11, controlPoints.m12) + new Vector3(0, 0, 0);
         firstBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);

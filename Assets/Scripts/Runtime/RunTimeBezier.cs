@@ -8,7 +8,7 @@ public class RunTimeBezier : MonoBehaviour
     public LineRenderer Lr;
     public float Speed = 1;
     //private GameObject[] concreteObject = new GameObject[4]; 
-    public void Init()
+    public void Init(bool isShowPoint)
     {
         for (int i = 0; i < 4; i++)
         {
@@ -16,7 +16,16 @@ public class RunTimeBezier : MonoBehaviour
             cube.transform.localScale = new Vector3(10f, 10f, 10f);
             cube.transform.position = new Vector3(i*10, 0, 0);
 
-            cube.AddComponent<DragPoint>();
+            if (!isShowPoint)
+            {
+                
+                cube.GetComponent<MeshRenderer>().enabled = false;
+            }
+            else 
+            {
+                cube.AddComponent<DragPoint>();
+            }
+            
             cube.transform.SetParent(this.transform);
             //concreteObject[i] = cube ;
             concretePoints.Add(cube);

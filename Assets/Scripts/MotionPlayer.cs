@@ -18,7 +18,7 @@ public class MotionPlayer : MonoBehaviour
         loader.Init(fileName);
         Matrix4x4 controlPoints = loader.SolveFitCurve();
 
-        mainBezier.Init();
+        mainBezier.Init(false);
         mainBezier.concretePoints[0].transform.position = new Vector3(controlPoints.m00, controlPoints.m01, controlPoints.m02) + new Vector3(0, 0, 0);
         mainBezier.concretePoints[1].transform.position = new Vector3(controlPoints.m10, controlPoints.m11, controlPoints.m12) + new Vector3(0, 0, 0);
         mainBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
@@ -29,7 +29,7 @@ public class MotionPlayer : MonoBehaviour
 
         secondLoader = new BVHLoader();
         secondLoader.Init(fileName);
-        secondBezier.Init();
+        secondBezier.Init(true);
         secondBezier.concretePoints[0].transform.position = new Vector3(controlPoints.m00, controlPoints.m01, controlPoints.m02) + new Vector3(0, 0, 0);
         secondBezier.concretePoints[1].transform.position = new Vector3(controlPoints.m10, controlPoints.m11, controlPoints.m12) + new Vector3(0, 0, 0);
         secondBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
