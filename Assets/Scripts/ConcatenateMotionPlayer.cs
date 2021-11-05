@@ -226,7 +226,7 @@ public class Motion
     /// <param name="smoothWindow"></param>
     public void Smooth(BVHParser parser, int firstMotionLastFrameIndex, int smoothWindow)
     {
-        int smoothStartFrame = firstMotionLastFrameIndex - smoothWindow;    // 使用walk_loop.bvh + dance.bvh時為第58幀
+        int smoothStartFrame = firstMotionLastFrameIndex - smoothWindow;   
         int smoothEndFrame = firstMotionLastFrameIndex + smoothWindow;
 
         List<BVHParser.BVHBone> boneList = parser.getBoneList();

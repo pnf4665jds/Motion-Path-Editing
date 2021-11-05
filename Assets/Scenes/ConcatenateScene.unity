@@ -254,8 +254,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99363ca288b241a4f8a0b5a7eeff3951, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName1: walk_loop.bvh
-  fileName2: dance.bvh
+  fileName1: dance.bvh
+  fileName2: ballet.bvh
   firstBezier: {fileID: 1002571044}
   secondBezier: {fileID: 1317642139}
   smooth: 1

@@ -12,6 +12,8 @@ public class MotionPlayer : MonoBehaviour
     public RunTimeBezier mainBezier;
     public RunTimeBezier secondBezier;
 
+    private float finalT = 0;
+
     private void Start()
     {
         loader = new BVHLoader();
@@ -90,10 +92,13 @@ public class MotionPlayer : MonoBehaviour
             frame = 0;
 
         float t = (float)frame / parser.frames;
+        finalT = secondBezier.ArcLengthProgress(finalT, secondBezier.GetBezierLength(100));
+        if (finalT > 1)
+            finalT -= 1f;
 
         Matrix4x4 TransformMatrix =
-            secondBezier.GetTranslationMatrix(t) *
-            secondBezier.GetRotationMatrix(t) *
+            secondBezier.GetTranslationMatrix(finalT) *
+            secondBezier.GetRotationMatrix(finalT) *
             bezier.GetRotationMatrix(t).inverse *
             bezier.GetTranslationMatrix(t).inverse;
 

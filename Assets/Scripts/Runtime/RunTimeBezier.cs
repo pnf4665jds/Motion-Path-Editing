@@ -84,8 +84,9 @@ public class RunTimeBezier : MonoBehaviour
     /// <returns></returns>
     public float ArcLengthProgress(float progress, float length) 
     {
-        progress += length / Mathf.Sqrt(Mathf.Pow(GetPointDerivation(progress).x, 2) + Mathf.Pow(GetPointDerivation(progress).y, 2)
+        float tangetLength = Mathf.Sqrt(Mathf.Pow(GetPointDerivation(progress).x, 2) + Mathf.Pow(GetPointDerivation(progress).y, 2)
                 + Mathf.Pow(GetPointDerivation(progress).z, 2));
+        progress += length / 1000f / tangetLength;
 
         return progress;
     }
