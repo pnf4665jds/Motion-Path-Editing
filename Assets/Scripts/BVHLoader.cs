@@ -12,12 +12,18 @@ public class BVHLoader
     private GameObject parentObject;
     private List<float> chordLengthParameter;
     private Color skeletonColor;
-    public void Init(string filePath, Color color)
+    public bool Init(string filePath, Color color)
     {   
         string bvhText = File.ReadAllText(filePath); ;
 
         // Setup parser
         parser = new BVHParser(bvhText);
+        string errorMsg = parser.Parse();
+        if (errorMsg.Length > 0)
+        {
+            Debug.LogError("Parse fail: " + errorMsg);
+            return false;
+        }
 
         parentObject = new GameObject();
         parentObject.name = "Skeleton";
@@ -30,6 +36,7 @@ public class BVHLoader
         jointDic = new Dictionary<BVHParser.BVHBone, GameObject>();
 
         skeletonColor = color;
+        return true;
     }
 
     public void Stop()

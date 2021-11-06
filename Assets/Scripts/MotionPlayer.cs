@@ -26,13 +26,19 @@ public class MotionPlayer : MonoBehaviour
     private int stepNum;
     private bool first = true;
 
-    public void Init(string filePath)
+    public void SetupParser(string filePath)
+    {
+        loader = new BVHLoader();
+        loader.Init(filePath, Color.blue);
+
+        secondLoader = new BVHLoader();
+        secondLoader.Init(filePath, Color.red);
+    }
+
+    public void Init()
     {
         tempObject = new GameObject();
         tempObject2 = new GameObject();
-
-        loader = new BVHLoader();
-        loader.Init(filePath, Color.blue);
         Matrix4x4 controlPoints = loader.SolveFitCurve();
 
         stepNum = loader.parser.frames - 1;
@@ -43,8 +49,7 @@ public class MotionPlayer : MonoBehaviour
         mainBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
         mainBezier.concretePoints[3].transform.position = new Vector3(controlPoints.m30, controlPoints.m31, controlPoints.m32) + new Vector3(0, 0, 0);
 
-        secondLoader = new BVHLoader();
-        secondLoader.Init(filePath, Color.red);
+        
         secondBezier.Init(true);
         secondBezier.concretePoints[0].transform.position = new Vector3(controlPoints.m00, controlPoints.m01, controlPoints.m02) + new Vector3(0, 0, 0);
         secondBezier.concretePoints[1].transform.position = new Vector3(controlPoints.m10, controlPoints.m11, controlPoints.m12) + new Vector3(0, 0, 0);

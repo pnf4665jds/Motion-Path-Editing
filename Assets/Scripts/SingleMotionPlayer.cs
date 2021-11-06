@@ -8,11 +8,14 @@ public class SingleMotionPlayer : MonoBehaviour
     public RunTimeBezier bezier;
     
     private IEnumerator PlayMotion;
-  
+    
     public void Init(string filePath, Vector3 basePos)
     {
         loader = new BVHLoader();
-        loader.Init(filePath, Color.blue);
+        if(!loader.Init(filePath, Color.blue))
+        {
+            return;
+        }
         Matrix4x4 controlPoints = loader.SolveFitCurve();
 
         bezier.Init(false);

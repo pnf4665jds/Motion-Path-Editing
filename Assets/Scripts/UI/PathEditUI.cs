@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using SimpleFileBrowser;
 
 public class PathEditUI : MonoBehaviour
 {
@@ -22,13 +23,19 @@ public class PathEditUI : MonoBehaviour
         if (GUILayout.Button("Load BVH File ", GUILayout.Width(300), GUILayout.Height(80)))
         {
 
-            filePath = EditorUtility.OpenFilePanel("Load BVH file ", "", "");
-            motionPlayer.Stop();
+            //filePath = EditorUtility.OpenFilePanel("Load BVH file ", "", "");
+           
+            FileBrowser.ShowLoadDialog((paths) =>
+            {
+                filePath = paths[0];
+                motionPlayer.Stop();
+                motionPlayer.SetupParser(filePath);
+            }, DoOnCancel, FileBrowser.PickMode.Files);
         }
         GUILayout.Space(10);
         if (GUILayout.Button("Start", GUILayout.Width(300), GUILayout.Height(80)))
         {
-            motionPlayer.Init(filePath);
+            motionPlayer.Init();
         }
         GUILayout.Space(10);
         if (GUILayout.Button(arcLengthButtonText, GUILayout.Width(300), GUILayout.Height(80)))
@@ -62,5 +69,10 @@ public class PathEditUI : MonoBehaviour
             }
         }
         GUILayout.EndArea();
+    }
+
+    private void DoOnCancel()
+    {
+
     }
 }

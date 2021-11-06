@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using SimpleFileBrowser;
 public class ConcatenateUI : MonoBehaviour
 {
     private string filePath1;
@@ -9,6 +10,8 @@ public class ConcatenateUI : MonoBehaviour
 
     public float widthOffset;
     public float heightOffset;
+
+    private FileBrowser.OnCancel cancel;
 
     public ConcatenateMotionPlayer concatenateMotionPlayer;
     // Start is called before the first frame update
@@ -23,22 +26,38 @@ public class ConcatenateUI : MonoBehaviour
         if (GUILayout.Button("Load BVH File 1", GUILayout.Width(300), GUILayout.Height(80)))
         {
             filePath1 = "";
-            filePath1 = EditorUtility.OpenFilePanel("Load BVH file 1", "", "");
-            concatenateMotionPlayer.Stop();
+            //filePath1 = EditorUtility.OpenFilePanel("Load BVH file 1", "", "");
+            FileBrowser.ShowLoadDialog((paths) =>
+            {
+                filePath1 = paths[0];
+                concatenateMotionPlayer.Stop();
+                concatenateMotionPlayer.SetupParser1(filePath1);
+            }, DoOnCancel, FileBrowser.PickMode.Files);
         }
         GUILayout.Space(10);
         if (GUILayout.Button("Load BVH File 2", GUILayout.Width(300), GUILayout.Height(80)))
         {
             filePath2 = "";
-            filePath2 = EditorUtility.OpenFilePanel("Load BVH file 2", "", "");
-            concatenateMotionPlayer.Stop();
+            //filePath2 = EditorUtility.OpenFilePanel("Load BVH file 2", "", "");
+            
+            FileBrowser.ShowLoadDialog((paths) =>
+            {
+                filePath2 = paths[0];
+                concatenateMotionPlayer.Stop();
+                concatenateMotionPlayer.SetupParser2(filePath2);
+            }, DoOnCancel, FileBrowser.PickMode.Files);
         }
         GUILayout.Space(10);
         if (GUILayout.Button("Start", GUILayout.Width(300), GUILayout.Height(80)))
         {
-            concatenateMotionPlayer.Init(filePath1, filePath2);
+            concatenateMotionPlayer.Init();
         }
         GUILayout.EndVertical();
         GUILayout.EndArea();
+    }
+
+    private void DoOnCancel()
+    {
+
     }
 }

@@ -8,8 +8,6 @@ public class DebugUIController : MonoBehaviour
 {
     public int ModeNumber;
 
-    public string[] StatusMode = { "Concatenate", "SkeletonPathEditing", "ModelPathEditing" };
-
     private void Start()
     {
         ModeNumber = 0;

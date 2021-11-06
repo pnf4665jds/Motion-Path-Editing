@@ -75,6 +75,13 @@ public class NewMotionPlayer : MonoBehaviour
     };
 
         var bp = parseFile();
+        string errorMsg = bp.Parse();
+        if (errorMsg.Length > 0)
+        {
+            Debug.LogError("Parse fail: " + errorMsg);
+            return;
+        }
+
         modelDriver1 = Instantiate(driver, Vector3.zero, Quaternion.identity);
         modelDriver2 = Instantiate(driver, Vector3.zero, Quaternion.identity);
 

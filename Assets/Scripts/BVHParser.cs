@@ -320,7 +320,7 @@ public class BVHParser
         assure("newline", foundNewline);
     }
 
-    private void assure(string what, bool result)
+    private string assure(string what, bool result)
     {
         if (!result)
         {
@@ -337,17 +337,20 @@ public class BVHParser
                     errorRegion += "<<<";
                 }
             }
-            throw new ArgumentException("Failed to parse BVH data at position " + pos + ". Expected " + what + " around here: " + errorRegion);
+            return "Failed to parse BVH data at position " + pos + ". Expected " + what + " around here: " + errorRegion;
         }
+        return "";
     }
 
-    private void assureExpect(string text)
+    private string assureExpect(string text)
     {
-        assure(text, expect(text));
+        return assure(text, expect(text));
     }
 
-    private void parse(bool overrideFrameTime, float time)
+    private string parse(bool overrideFrameTime, float time)
     {
+        string errorMsg = "";
+
         // Prepare character table
         if (charMap == null)
         {
@@ -371,22 +374,34 @@ public class BVHParser
 
         // Parse skeleton
         skip();
-        assureExpect("HIERARCHY");
+        errorMsg = assureExpect("HIERARCHY");
+        if (errorMsg.Length > 0)
+            return errorMsg;
 
         boneList = new List<BVHBone>();
         root = new BVHBone(this, true);
 
         // Parse meta data
         skip();
-        assureExpect("MOTION");
+        errorMsg = assureExpect("MOTION");
+        if(errorMsg.Length > 0)
+            return errorMsg;
         skip();
-        assureExpect("FRAMES:");
+        errorMsg = assureExpect("FRAMES:");
+        if (errorMsg.Length > 0)
+            return errorMsg;
         skip();
-        assure("frame number", getInt(out frames));
+        errorMsg = assure("frame number", getInt(out frames));
+        if (errorMsg.Length > 0)
+            return errorMsg;
         skip();
-        assureExpect("FRAME TIME:");
+        errorMsg = assureExpect("FRAME TIME:");
+        if (errorMsg.Length > 0)
+            return errorMsg;
         skip();
-        assure("frame time", getFloat(out frameTime));
+        errorMsg = assure("frame time", getFloat(out frameTime));
+        if (errorMsg.Length > 0)
+            return errorMsg;
 
         if (overrideFrameTime)
         {
@@ -417,16 +432,23 @@ public class BVHParser
             for (channel = 0; channel < totalChannels; channel++)
             {
                 skipInLine();
-                assure("channel value", getFloat(out channels[channel][i]));
+                errorMsg = assure("channel value", getFloat(out channels[channel][i]));
+                if (errorMsg.Length > 0)
+                    return errorMsg;
             }
         }
+
+        return "";
     }
 
     public BVHParser(string bvhText)
     {
         this.bvhText = bvhText;
+    }
 
-        parse(false, 0f);
+    public string Parse()
+    {
+        return parse(false, 0f);
     }
 
     public BVHParser(string bvhText, float time)

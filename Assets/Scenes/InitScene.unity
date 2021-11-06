@@ -328,13 +328,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5db7e7b022ea1c44c970f29aae954455, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FilePath: 
-  FilePath2: 
   ModeNumber: 0
-  StatusMode:
-  - Concatenate
-  - SkeletonPathEditing
-  - ModelPathEditing
 --- !u!4 &1351361722
 Transform:
   m_ObjectHideFlags: 0

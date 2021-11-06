@@ -15,11 +15,23 @@ public class ConcatenateMotionPlayer : MonoBehaviour
 
     private IEnumerator PlayMotion;
 
-    public void Init(string filePath1, string filePath2)
+    public void SetupParser1(string filePath1)
     {
         // 竚材Motion闽把计
         firstLoader = new BVHLoader();
         firstLoader.Init(filePath1, Color.blue);
+    }
+
+    public void SetupParser2(string filePath2)
+    {
+        // 竚材Motion闽把计
+        secondLoader = new BVHLoader();
+        secondLoader.Init(filePath2, Color.red);
+    }
+
+    public void Init()
+    {
+       
         Matrix4x4 controlPoints = firstLoader.SolveFitCurve();
 
         firstParser = firstLoader.parser;
@@ -30,9 +42,6 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         firstBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
         firstBezier.concretePoints[3].transform.position = new Vector3(controlPoints.m30, controlPoints.m31, controlPoints.m32) + new Vector3(0, 0, 0);
 
-        // 竚材Motion闽把计
-        secondLoader = new BVHLoader();
-        secondLoader.Init(filePath2, Color.red);
         Matrix4x4 secondControlPoints = secondLoader.SolveFitCurve();
 
         secondParser = secondLoader.parser;

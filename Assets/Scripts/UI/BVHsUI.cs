@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using SimpleFileBrowser;
 
 public class BVHsUI : MonoBehaviour
 {
@@ -23,26 +24,46 @@ public class BVHsUI : MonoBehaviour
         GUILayout.BeginArea(new Rect((Screen.width / 2) - widthOffset, (Screen.height / 2) - heightOffset, 400, 400));
         if (GUILayout.Button("Load BVH File 1 ", GUILayout.Width(300), GUILayout.Height(80)))
         {
-            singleMotionPlayer1.Stop();
-            filePath1 = EditorUtility.OpenFilePanel("Load BVH file ", "", "");
-            singleMotionPlayer1.Init(filePath1, basePos + Vector3.left * 40);
+            //filePath1 = EditorUtility.OpenFilePanel("Load BVH file ", "", "");
+           
+            FileBrowser.ShowLoadDialog((paths) =>
+            {
+                filePath1 = paths[0];
+                singleMotionPlayer1.Stop();
+                singleMotionPlayer1.Init(filePath1, basePos + Vector3.left * 40);
+            }, DoOnCancel, FileBrowser.PickMode.Files);
         }
         GUILayout.Space(10);
         if (GUILayout.Button("Load BVH File 2 ", GUILayout.Width(300), GUILayout.Height(80)))
         {
-            singleMotionPlayer2.Stop();
-            filePath2 = EditorUtility.OpenFilePanel("Load BVH file ", "", "");
-            singleMotionPlayer2.Init(filePath2, basePos);
+            //filePath2 = EditorUtility.OpenFilePanel("Load BVH file ", "", "");
+
+            FileBrowser.ShowLoadDialog((paths) =>
+            {
+                filePath2 = paths[0];
+                singleMotionPlayer2.Stop();
+                singleMotionPlayer2.Init(filePath2, basePos);
+            }, DoOnCancel, FileBrowser.PickMode.Files);
         }
         GUILayout.Space(10);
 
         if (GUILayout.Button("Load BVH File 3 ", GUILayout.Width(300), GUILayout.Height(80)))
         {
-            singleMotionPlayer3.Stop();
-            filePath3 = EditorUtility.OpenFilePanel("Load BVH file ", "", "");
-            singleMotionPlayer3.Init(filePath3, basePos + Vector3.right * 40);
+            //filePath3 = EditorUtility.OpenFilePanel("Load BVH file ", "", "");
+
+            FileBrowser.ShowLoadDialog((paths) =>
+            {
+                filePath3 = paths[0];
+                singleMotionPlayer3.Stop();
+                singleMotionPlayer3.Init(filePath3, basePos + Vector3.right * 40);
+            }, DoOnCancel, FileBrowser.PickMode.Files);
         }
 
         GUILayout.EndArea();
+    }
+
+    private void DoOnCancel()
+    {
+
     }
 }
