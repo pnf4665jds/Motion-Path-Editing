@@ -11,6 +11,8 @@ public class MotionPlayer : MonoBehaviour
 
     public RunTimeBezier mainBezier;
     public RunTimeBezier secondBezier;
+    public bool isArcLength = false;
+    public int stepNum = 500;
 
     private float finalT = 0;
     private float tempFinalT = 0;
@@ -125,10 +127,18 @@ public class MotionPlayer : MonoBehaviour
             frame = 0;
 
         float t = (float)frame / (parser.frames - 1);
-        if (finalT > 1)
-            finalT -= 1f;
-        finalT = secondBezier.ArcLengthProgress(finalT, secondBezier.GetBezierLength(100));
-        
+        if (isArcLength)
+        {
+            if (finalT > 1)
+                finalT -= 1f;
+            finalT = secondBezier.ArcLengthProgress(finalT, secondBezier.GetBezierLength(100), stepNum);
+
+        }
+        else
+        {
+            finalT = t;
+        }
+
         Matrix4x4 TransformMatrix =
             secondBezier.GetTranslationMatrix(finalT) *
             secondBezier.GetRotationMatrix(finalT) *
@@ -140,9 +150,9 @@ public class MotionPlayer : MonoBehaviour
         {
             for(int i = 0; i < parser.frames; i++)
             {
-                tempFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100));
+                tempFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100), stepNum);
             }
-            float nextFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100));
+            float nextFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100), stepNum);
 
             Matrix4x4 lastTransformMatrix =
             secondBezier.GetTranslationMatrix(tempFinalT) *
@@ -177,13 +187,16 @@ public class MotionPlayer : MonoBehaviour
         secondLoader.rootJoint.transform.position = FinalTransformMatrix.ExtractPosition();
         secondLoader.rootJoint.transform.rotation = FinalTransformMatrix.ExtractRotation();
 
-        float factor = SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30);
+        if (isArcLength)
+        {
+            float factor = SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30);
 
-        secondLoader.rootJoint.transform.position += factor * offsetPos;
-        if(factor > 0)
-            secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(lastRot, firstRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30)); 
-        else
-            secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(firstRot, lastRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30));
+            secondLoader.rootJoint.transform.position += factor * offsetPos;
+            if (factor > 0)
+                secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(lastRot, firstRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30));
+            else
+                secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(firstRot, lastRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30));
+        }
 
         foreach (BVHParser.BVHBone child in parser.root.children)
         {

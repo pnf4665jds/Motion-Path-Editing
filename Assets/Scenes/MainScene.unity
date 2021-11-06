@@ -364,6 +364,8 @@ MonoBehaviour:
   fileName: walk_loop.bvh
   mainBezier: {fileID: 7595397837083933286}
   secondBezier: {fileID: 7595397837330742051}
+  isArcLength: 1
+  stepNum: 88
 --- !u!120 &6698865656777875556
 LineRenderer:
   m_ObjectHideFlags: 0
