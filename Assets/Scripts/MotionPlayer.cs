@@ -13,9 +13,19 @@ public class MotionPlayer : MonoBehaviour
     public RunTimeBezier secondBezier;
 
     private float finalT = 0;
+    private float tempFinalT = 0;
+    private Vector3 offsetPos;  // 紀錄Motion頭尾幀的位移量
+    private Quaternion lastRot, firstRot; // 紀錄Motion頭尾幀的旋轉變化量
+    private GameObject tempObject;  // 協助Smooth的物件
+    private GameObject tempObject2;
+    private Vector3 lastRootPos, firstRootPos;
+    private Quaternion lastRootRot, firstRootRot;
 
     private void Start()
     {
+        tempObject = new GameObject();
+        tempObject2 = new GameObject();
+
         loader = new BVHLoader();
         loader.Init(fileName);
         Matrix4x4 controlPoints = loader.SolveFitCurve();
@@ -50,19 +60,42 @@ public class MotionPlayer : MonoBehaviour
         BVHParser parser = loader.parser;
         int frame = 0;
         List<float> chordLengthParamterList = loader.GetChordLengthParameterList();
+
+        int[] order = new int[3] { parser.root.channelOrder[3], parser.root.channelOrder[4], parser.root.channelOrder[5] };
+
+        firstRootPos = new Vector3(
+               parser.root.channels[0].values[0],
+               parser.root.channels[1].values[0],
+               parser.root.channels[2].values[0]);
+
+        firstRootRot = ParserTool.Euler2Quat(new Vector3(
+            parser.root.channels[3].values[0],
+            parser.root.channels[4].values[0],
+            parser.root.channels[5].values[0]), order);
+
+        lastRootPos = new Vector3(
+               parser.root.channels[0].values[parser.frames - 1],
+               parser.root.channels[1].values[parser.frames - 1],
+               parser.root.channels[2].values[parser.frames - 1]);
+
+        lastRootRot = ParserTool.Euler2Quat(new Vector3(
+            parser.root.channels[3].values[parser.frames - 1],
+            parser.root.channels[4].values[parser.frames - 1],
+            parser.root.channels[5].values[parser.frames - 1]), order);
+
         while (true)
         {
             bezier.LogicalUpdate();
             if (frame >= parser.frames)
-                frame = 1;
+                frame = 0;
 
             Vector3 rootLocalPos = new Vector3(
             parser.root.channels[0].values[frame],
             parser.root.channels[1].values[frame],
             parser.root.channels[2].values[frame]);
+            //Debug.Log(frame);
 
-
-            int[] order = new int[3] { parser.root.channelOrder[3], parser.root.channelOrder[4], parser.root.channelOrder[5] };
+            //int[] order = new int[3] { parser.root.channelOrder[3], parser.root.channelOrder[4], parser.root.channelOrder[5] };
             Quaternion rootLocalRot = ParserTool.Euler2Quat(new Vector3(
                 parser.root.channels[3].values[frame],
                 parser.root.channels[4].values[frame],
@@ -91,29 +124,97 @@ public class MotionPlayer : MonoBehaviour
         if (frame >= parser.frames)
             frame = 0;
 
-        float t = (float)frame / parser.frames;
-        finalT = secondBezier.ArcLengthProgress(finalT, secondBezier.GetBezierLength(100));
+        float t = (float)frame / (parser.frames - 1);
         if (finalT > 1)
             finalT -= 1f;
-
+        finalT = secondBezier.ArcLengthProgress(finalT, secondBezier.GetBezierLength(100));
+        
         Matrix4x4 TransformMatrix =
             secondBezier.GetTranslationMatrix(finalT) *
             secondBezier.GetRotationMatrix(finalT) *
             bezier.GetRotationMatrix(t).inverse *
             bezier.GetTranslationMatrix(t).inverse;
 
+        // 計算這次的頭尾幀差距
+        if (frame == parser.frames - 1 - 30)
+        {
+            for(int i = 0; i < parser.frames; i++)
+            {
+                tempFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100));
+            }
+            float nextFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100));
+
+            Matrix4x4 lastTransformMatrix =
+            secondBezier.GetTranslationMatrix(tempFinalT) *
+            secondBezier.GetRotationMatrix(tempFinalT) *
+            bezier.GetRotationMatrix(1).inverse *
+            bezier.GetTranslationMatrix(1).inverse;
+
+            Matrix4x4 firstTransformMatrix =
+            secondBezier.GetTranslationMatrix(nextFinalT) *
+            secondBezier.GetRotationMatrix(nextFinalT) *
+            bezier.GetRotationMatrix(0).inverse *
+            bezier.GetTranslationMatrix(0).inverse;
+
+            tempObject.transform.position = lastRootPos;
+            tempObject.transform.rotation = lastRootRot;
+            tempObject2.transform.position = firstRootPos;
+            tempObject2.transform.rotation = firstRootRot;
+
+            Vector3 lastPos = (lastTransformMatrix * tempObject.transform.localToWorldMatrix).ExtractPosition();
+            Vector3 firstPos = (firstTransformMatrix * tempObject2.transform.localToWorldMatrix).ExtractPosition();
+
+            lastRot = (lastTransformMatrix * tempObject.transform.localToWorldMatrix).ExtractRotation();
+            firstRot = (firstTransformMatrix * tempObject2.transform.localToWorldMatrix).ExtractRotation();
+
+            offsetPos = firstPos - lastPos;
+        }
+
+        //tempObject.transform.position += SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30) * offsetPos;
+
         Matrix4x4 FinalTransformMatrix = TransformMatrix * mainRoot.transform.localToWorldMatrix;
+        //Matrix4x4 FinalTransformMatrix = TransformMatrix * mainRoot.transform.localToWorldMatrix;
         secondLoader.rootJoint.transform.position = FinalTransformMatrix.ExtractPosition();
-        //Debug.Log("Time: " + t + "  Pos: " + TransformMatrix.ExtractPosition());
         secondLoader.rootJoint.transform.rotation = FinalTransformMatrix.ExtractRotation();
 
-        //loader.rootJoint.transform.position = mainRoot.transform.position;
-        //Debug.Log("Time: " + t + "  Pos: " + TransformMatrix.ExtractPosition());
-        //loader.rootJoint.transform.rotation = mainRoot.transform.rotation;
+        float factor = SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30);
+
+        secondLoader.rootJoint.transform.position += factor * offsetPos;
+        if(factor > 0)
+            secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(lastRot, firstRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30)); 
+        else
+            secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(firstRot, lastRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30));
 
         foreach (BVHParser.BVHBone child in parser.root.children)
         {
             secondLoader.SetupSkeleton(child, secondLoader.rootJoint, frame);
         }
+    }
+
+    private float SelfConcatenateSmoothFunction(int curremtFrame, int concatenateFrame, int smoothWindow)
+    {
+        // reference from maochinn and https://www.cs.toronto.edu/~jacobson/seminar/arikan-and-forsyth-2002.pdf
+        if(curremtFrame < smoothWindow)
+        {
+            curremtFrame += (concatenateFrame + 1);
+        }
+
+        float res = 0;
+        int diff = curremtFrame - concatenateFrame;
+        float diffNorm = ((float)(diff + smoothWindow)) / smoothWindow;
+        if (Mathf.Abs(diff) >= smoothWindow)
+        {
+            res = 0;
+        }
+        else if (curremtFrame > (concatenateFrame - smoothWindow) && curremtFrame <= concatenateFrame)
+        {
+            res = 0.5f * (diffNorm * diffNorm);
+        }
+        else
+        {
+            res = -0.5f * (diffNorm * diffNorm) + 2 * diffNorm - 2;
+        }
+
+        return res;
     }
 }
