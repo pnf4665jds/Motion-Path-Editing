@@ -49,6 +49,7 @@ public class NewMotionPlayer : MonoBehaviour
     private void Start()
     {
         fileName = Application.dataPath + "/Resources/08_01.bvh";
+
         skeleton1Root = GameObject.CreatePrimitive(PrimitiveType.Cube);
         skeleton2Root = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
@@ -115,7 +116,7 @@ public class NewMotionPlayer : MonoBehaviour
         //List<float> chordLengthParamterList = loader.GetChordLengthParameterList();
         while (true)
         {
-            bezier.LogicalUpdate(IsShowPoint);
+            bezier.LogicalUpdate(false);
             if (frame >= parser.frames)
                 frame = 1;
 
