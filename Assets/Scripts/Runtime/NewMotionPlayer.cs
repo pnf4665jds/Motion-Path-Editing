@@ -10,6 +10,7 @@ using System.Collections;
 /// </summary>
 public class NewMotionPlayer : MonoBehaviour
 {
+    public bool IsShowPoint { get; set; } = false;
     private string fileName;
     public NewBVHDriver driver;
     public RunTimeBezier path1;
@@ -107,7 +108,7 @@ public class NewMotionPlayer : MonoBehaviour
         //List<float> chordLengthParamterList = loader.GetChordLengthParameterList();
         while (true)
         {
-            bezier.LogicalUpdate();
+            bezier.LogicalUpdate(IsShowPoint);
             if (frame >= parser.frames)
                 frame = 1;
 
@@ -154,7 +155,7 @@ public class NewMotionPlayer : MonoBehaviour
         NewBVHDriver driver2 = modelDriver2;
         BVHParser parser = driver2.parser;
 
-        path2.LogicalUpdate();
+        path2.LogicalUpdate(IsShowPoint);
         if (frame >= parser.frames)
             frame = 0;
 

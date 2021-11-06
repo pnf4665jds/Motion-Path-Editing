@@ -9,6 +9,7 @@ public class ModelUI : MonoBehaviour
     public int heightOffset;
     public NewMotionPlayer motionPlayer;
     private string arcLengthButtonText = "Arc Length is off";
+    private string editModeButtonText = "Edit Mode off";
 
     private void OnGUI()
     {
@@ -26,6 +27,20 @@ public class ModelUI : MonoBehaviour
             {
                 arcLengthButtonText = "Arc Length is on";
                 motionPlayer.IsArcLength = true;
+            }
+        }
+        GUILayout.Space(10);
+        if (GUILayout.Button(editModeButtonText, GUILayout.Width(300), GUILayout.Height(80)))
+        {
+            if (motionPlayer.IsShowPoint)
+            {
+                editModeButtonText = "Edit Mode off";
+                motionPlayer.IsShowPoint = false;
+            }
+            else
+            {
+                editModeButtonText = "Edit Mode on";
+                motionPlayer.IsShowPoint = true;
             }
         }
         GUILayout.Space(10);

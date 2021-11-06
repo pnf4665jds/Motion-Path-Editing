@@ -15,6 +15,6 @@ public class RuntimeCurveDriver : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Rt.LogicalUpdate();
+        Rt.LogicalUpdate(true);
     }
 }
