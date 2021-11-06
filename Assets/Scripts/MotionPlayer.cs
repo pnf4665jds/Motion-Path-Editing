@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class MotionPlayer : MonoBehaviour
 {
-    // 檔名
-    public string fileName = "walk_loop.bvh";
     public BVHLoader loader { get; set; }
     public BVHLoader secondLoader { get; set; }
 
@@ -43,9 +41,6 @@ public class MotionPlayer : MonoBehaviour
         mainBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
         mainBezier.concretePoints[3].transform.position = new Vector3(controlPoints.m30, controlPoints.m31, controlPoints.m32) + new Vector3(0, 0, 0);
 
-        // 關掉其中一條Curve的控制點
-        mainBezier.concretePoints.ForEach(p => p.SetActive(false));
-
         secondLoader = new BVHLoader();
         secondLoader.Init(filePath, Color.red);
         secondBezier.Init(true);
@@ -81,20 +76,20 @@ public class MotionPlayer : MonoBehaviour
     public IEnumerator Play(BVHLoader loader, RunTimeBezier bezier)
     {
         BVHParser parser = loader.parser;
-        int frame = 0;
+        int frame = 1;
         List<float> chordLengthParamterList = loader.GetChordLengthParameterList();
 
         int[] order = new int[3] { parser.root.channelOrder[3], parser.root.channelOrder[4], parser.root.channelOrder[5] };
 
         firstRootPos = new Vector3(
-               parser.root.channels[0].values[0],
-               parser.root.channels[1].values[0],
-               parser.root.channels[2].values[0]);
+               parser.root.channels[0].values[1],
+               parser.root.channels[1].values[1],
+               parser.root.channels[2].values[1]);
 
         firstRootRot = ParserTool.Euler2Quat(new Vector3(
-            parser.root.channels[3].values[0],
-            parser.root.channels[4].values[0],
-            parser.root.channels[5].values[0]), order);
+            parser.root.channels[3].values[1],
+            parser.root.channels[4].values[1],
+            parser.root.channels[5].values[1]), order);
 
         lastRootPos = new Vector3(
                parser.root.channels[0].values[parser.frames - 1],
@@ -110,7 +105,7 @@ public class MotionPlayer : MonoBehaviour
         {
             bezier.LogicalUpdate();
             if (frame >= parser.frames)
-                frame = 0;
+                frame = 1;
 
             Vector3 rootLocalPos = new Vector3(
             parser.root.channels[0].values[frame],
@@ -145,9 +140,9 @@ public class MotionPlayer : MonoBehaviour
 
         secondBezier.LogicalUpdate();
         if (frame >= parser.frames)
-            frame = 0;
+            frame = 1;
 
-        float t = (float)frame / (parser.frames - 1);
+        float t = (float)frame / (parser.frames - 2);
         if (isArcLength)
         {
             if (finalT > 1)
@@ -167,10 +162,10 @@ public class MotionPlayer : MonoBehaviour
             bezier.GetTranslationMatrix(t).inverse;
 
         // 計算這次的頭尾幀差距
-        if (first || frame == parser.frames - 1 - 30)
+        if (first || frame == parser.frames - 2 - 30)
         {
             first = false;
-            for(int i = 0; i < parser.frames; i++)
+            for(int i = 1; i < parser.frames; i++)
             {
                 tempFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100), stepNum, speed);
             }
