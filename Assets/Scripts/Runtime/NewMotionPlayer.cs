@@ -10,7 +10,7 @@ using System.Collections;
 /// </summary>
 public class NewMotionPlayer : MonoBehaviour
 {
-    public string fileName;
+    private string fileName;
     public NewBVHDriver driver;
     public RunTimeBezier path1;
     public RunTimeBezier path2;
@@ -45,6 +45,7 @@ public class NewMotionPlayer : MonoBehaviour
 
     private void Start()
     {
+        fileName = Application.dataPath + "/Resources/08_01.bvh";
         skeleton1Root = GameObject.CreatePrimitive(PrimitiveType.Cube);
         skeleton2Root = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
