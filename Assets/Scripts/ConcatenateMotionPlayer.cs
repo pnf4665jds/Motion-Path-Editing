@@ -63,8 +63,8 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         secondBezier.concretePoints[2].transform.position += offsetPos;
         secondBezier.concretePoints[3].transform.position += offsetPos;
 
-        firstBezier.LogicalUpdate();
-        secondBezier.LogicalUpdate();
+        firstBezier.LogicalUpdate(false);
+        secondBezier.LogicalUpdate(false);
         secondLoader.rootJoint.SetActive(false);
     }
 

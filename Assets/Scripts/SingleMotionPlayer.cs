@@ -57,7 +57,7 @@ public class SingleMotionPlayer : MonoBehaviour
 
         while (true)
         {
-            bezier.LogicalUpdate();
+            bezier.LogicalUpdate(false);
             if (frame >= parser.frames)
                 frame = 1;
 

@@ -12,6 +12,8 @@ public class MotionPlayer : MonoBehaviour
     public bool isArcLength { get; set; } = false;
     public float speed { get; set; } = 1;
 
+    public bool showControlPoint { get; set; } = false;
+
     private float finalT = 0;
     private float tempFinalT = 0;
     private Vector3 offsetPos;  // 紀錄Motion頭尾幀的位移量
@@ -103,7 +105,7 @@ public class MotionPlayer : MonoBehaviour
 
         while (true)
         {
-            bezier.LogicalUpdate();
+            bezier.LogicalUpdate(false);
             if (frame >= parser.frames)
                 frame = 1;
 
@@ -138,7 +140,7 @@ public class MotionPlayer : MonoBehaviour
     {
         BVHParser parser = secondLoader.parser;
 
-        secondBezier.LogicalUpdate();
+        secondBezier.LogicalUpdate(showControlPoint);
         if (frame >= parser.frames)
             frame = 1;
 
