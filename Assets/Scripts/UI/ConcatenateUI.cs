@@ -9,6 +9,8 @@ public class ConcatenateUI : MonoBehaviour
 
     public float widthOffset;
     public float heightOffset;
+
+    public ConcatenateMotionPlayer concatenateMotionPlayer;
     // Start is called before the first frame update
     private void OnGUI()
     {
@@ -22,17 +24,19 @@ public class ConcatenateUI : MonoBehaviour
         {
             filePath1 = "";
             filePath1 = EditorUtility.OpenFilePanel("Load BVH file 1", "", "");
+            concatenateMotionPlayer.Stop();
         }
         GUILayout.Space(10);
         if (GUILayout.Button("Load BVH File 2", GUILayout.Width(300), GUILayout.Height(80)))
         {
             filePath2 = "";
             filePath2 = EditorUtility.OpenFilePanel("Load BVH file 2", "", "");
+            concatenateMotionPlayer.Stop();
         }
         GUILayout.Space(10);
         if (GUILayout.Button("Start", GUILayout.Width(300), GUILayout.Height(80)))
         {
-            
+            concatenateMotionPlayer.Init(filePath1, filePath2);
         }
         GUILayout.EndVertical();
         GUILayout.EndArea();

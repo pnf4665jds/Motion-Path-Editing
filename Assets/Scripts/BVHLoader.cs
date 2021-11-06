@@ -11,14 +11,10 @@ public class BVHLoader
     private Dictionary<BVHParser.BVHBone, GameObject> jointDic;
     private GameObject parentObject;
     private List<float> chordLengthParameter;
-
-    public void Init(string fileName)
-    {
-        // Read target file in resources folder
-        string filePath = Application.dataPath + "/Resources/" + fileName;
-        StreamReader sr = new StreamReader(filePath);
-        string bvhText = sr.ReadToEnd();
-        sr.Close();
+    private Color skeletonColor;
+    public void Init(string filePath, Color color)
+    {   
+        string bvhText = File.ReadAllText(filePath); ;
 
         // Setup parser
         parser = new BVHParser(bvhText);
@@ -32,6 +28,14 @@ public class BVHLoader
 
         chordLengthParameter = new List<float>();
         jointDic = new Dictionary<BVHParser.BVHBone, GameObject>();
+
+        skeletonColor = color;
+    }
+
+    public void Stop()
+    {
+        if(parentObject)
+            Object.Destroy(parentObject);
     }
 
     /// <summary>
@@ -71,7 +75,7 @@ public class BVHLoader
         
         // 利用LineRenderer畫Bone
         renderer = joint.GetComponent<LineRenderer>();
-        renderer.material.SetColor("_Color", Color.blue);
+        renderer.material.SetColor("_Color", skeletonColor);
         renderer.SetPosition(0, parent.transform.position);
         renderer.SetPosition(1, joint.transform.position);
 
@@ -115,7 +119,7 @@ public class BVHLoader
 
         // 利用LineRenderer畫Bone
         renderer = joint.GetComponent<LineRenderer>();
-        renderer.material.SetColor("_Color", Color.blue);
+        renderer.material.SetColor("_Color", skeletonColor);
         renderer.SetPosition(0, parent.transform.position);
         renderer.SetPosition(1, joint.transform.position);
 

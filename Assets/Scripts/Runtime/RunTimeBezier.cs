@@ -88,11 +88,11 @@ public class RunTimeBezier : MonoBehaviour
     /// <param name="progress"></param>
     /// <param name="length"></param>
     /// <returns></returns>
-    public float ArcLengthProgress(float progress, float length, float stepNum) 
+    public float ArcLengthProgress(float progress, float length, int stepNum, float speed) 
     {
         float tangetLength = Mathf.Sqrt(Mathf.Pow(GetPointDerivation(progress).x, 2) + Mathf.Pow(GetPointDerivation(progress).y, 2)
                 + Mathf.Pow(GetPointDerivation(progress).z, 2));
-        progress += length / stepNum / tangetLength;
+        progress += length / stepNum / tangetLength * speed;
 
         return progress;
     }

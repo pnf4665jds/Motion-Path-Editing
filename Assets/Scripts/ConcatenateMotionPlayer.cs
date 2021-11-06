@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class ConcatenateMotionPlayer : MonoBehaviour
 {
-    public string fileName1 = "walk_loop.bvh";
-    public string fileName2 = "dance.bvh";
     public BVHLoader firstLoader;
     public BVHLoader secondLoader;
     public RunTimeBezier firstBezier;
@@ -15,11 +13,13 @@ public class ConcatenateMotionPlayer : MonoBehaviour
     private BVHParser firstParser;
     private BVHParser secondParser;
 
-    private void Start()
+    private IEnumerator PlayMotion;
+
+    public void Init(string filePath1, string filePath2)
     {
         // 竚材Motion闽把计
         firstLoader = new BVHLoader();
-        firstLoader.Init(fileName1);
+        firstLoader.Init(filePath1, Color.blue);
         Matrix4x4 controlPoints = firstLoader.SolveFitCurve();
 
         firstParser = firstLoader.parser;
@@ -32,7 +32,7 @@ public class ConcatenateMotionPlayer : MonoBehaviour
 
         // 竚材Motion闽把计
         secondLoader = new BVHLoader();
-        secondLoader.Init(fileName2);
+        secondLoader.Init(filePath2, Color.red);
         Matrix4x4 secondControlPoints = secondLoader.SolveFitCurve();
 
         secondParser = secondLoader.parser;
@@ -44,7 +44,8 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         secondBezier.concretePoints[3].transform.position = new Vector3(secondControlPoints.m30, secondControlPoints.m31, secondControlPoints.m32) + new Vector3(0, 0, 0);
 
         Motion concatenateMotion = Concatenate();
-        StartCoroutine(Play(firstLoader, concatenateMotion));
+        PlayMotion = Play(firstLoader, concatenateMotion);
+        StartCoroutine(PlayMotion);
 
         Vector3 firstBezierEnd = Bezier.GetPoint(firstBezier.concretePoints[0].transform.position,
                                                  firstBezier.concretePoints[1].transform.position,
@@ -65,6 +66,18 @@ public class ConcatenateMotionPlayer : MonoBehaviour
         firstBezier.LogicalUpdate();
         secondBezier.LogicalUpdate();
         secondLoader.rootJoint.SetActive(false);
+    }
+
+    public void Stop()
+    {
+        if (PlayMotion != null)
+        {
+            firstLoader.Stop();
+            secondLoader.Stop();
+            firstBezier.ClearBezier();
+            secondBezier.ClearBezier();
+            StopCoroutine(PlayMotion);
+        }
     }
 
     /// <summary>

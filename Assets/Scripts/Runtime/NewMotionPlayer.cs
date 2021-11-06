@@ -157,7 +157,7 @@ public class NewMotionPlayer : MonoBehaviour
 
         float t = (float)frame / parser.frames;
 
-        finalT = path2.ArcLengthProgress(finalT, path2.GetBezierLength(100), parser.frames-1);
+        finalT = path2.ArcLengthProgress(finalT, path2.GetBezierLength(100), parser.frames-1, 1);
 
         if (finalT > 1)
             finalT -= 1f;

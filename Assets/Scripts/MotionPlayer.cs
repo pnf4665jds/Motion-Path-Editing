@@ -11,8 +11,8 @@ public class MotionPlayer : MonoBehaviour
 
     public RunTimeBezier mainBezier;
     public RunTimeBezier secondBezier;
-    public bool isArcLength = false;
-    public int stepNum = 500;
+    public bool isArcLength { get; set; } = false;
+    public float speed { get; set; } = 1;
 
     private float finalT = 0;
     private float tempFinalT = 0;
@@ -22,15 +22,20 @@ public class MotionPlayer : MonoBehaviour
     private GameObject tempObject2;
     private Vector3 lastRootPos, firstRootPos;
     private Quaternion lastRootRot, firstRootRot;
+    private IEnumerator PlayMotion;
+    private int stepNum;
+    private bool first = true;
 
-    private void Start()
+    public void Init(string filePath)
     {
         tempObject = new GameObject();
         tempObject2 = new GameObject();
 
         loader = new BVHLoader();
-        loader.Init(fileName);
+        loader.Init(filePath, Color.blue);
         Matrix4x4 controlPoints = loader.SolveFitCurve();
+
+        stepNum = loader.parser.frames - 1;
 
         mainBezier.Init(false);
         mainBezier.concretePoints[0].transform.position = new Vector3(controlPoints.m00, controlPoints.m01, controlPoints.m02) + new Vector3(0, 0, 0);
@@ -42,15 +47,31 @@ public class MotionPlayer : MonoBehaviour
         mainBezier.concretePoints.ForEach(p => p.SetActive(false));
 
         secondLoader = new BVHLoader();
-        secondLoader.Init(fileName);
+        secondLoader.Init(filePath, Color.red);
         secondBezier.Init(true);
         secondBezier.concretePoints[0].transform.position = new Vector3(controlPoints.m00, controlPoints.m01, controlPoints.m02) + new Vector3(0, 0, 0);
         secondBezier.concretePoints[1].transform.position = new Vector3(controlPoints.m10, controlPoints.m11, controlPoints.m12) + new Vector3(0, 0, 0);
         secondBezier.concretePoints[2].transform.position = new Vector3(controlPoints.m20, controlPoints.m21, controlPoints.m22) + new Vector3(0, 0, 0);
         secondBezier.concretePoints[3].transform.position = new Vector3(controlPoints.m30, controlPoints.m31, controlPoints.m32) + new Vector3(0, 0, 0);
 
-        StartCoroutine(Play(loader, mainBezier));
+        PlayMotion = Play(loader, mainBezier);
+
+        StartCoroutine(PlayMotion);
     }
+
+    public void Stop()
+    {
+        if (PlayMotion != null)
+        {
+            loader.Stop();
+            secondLoader.Stop();
+            mainBezier.ClearBezier();
+            secondBezier.ClearBezier();
+            StopCoroutine(PlayMotion);
+        }
+        finalT = 0;
+        tempFinalT = 0;
+    }   
 
     /// <summary>
     /// 播放Motion
@@ -131,7 +152,7 @@ public class MotionPlayer : MonoBehaviour
         {
             if (finalT > 1)
                 finalT -= 1f;
-            finalT = secondBezier.ArcLengthProgress(finalT, secondBezier.GetBezierLength(100), stepNum);
+            finalT = secondBezier.ArcLengthProgress(finalT, secondBezier.GetBezierLength(100), stepNum, speed);
 
         }
         else
@@ -146,13 +167,14 @@ public class MotionPlayer : MonoBehaviour
             bezier.GetTranslationMatrix(t).inverse;
 
         // 計算這次的頭尾幀差距
-        if (frame == parser.frames - 1 - 30)
+        if (first || frame == parser.frames - 1 - 30)
         {
+            first = false;
             for(int i = 0; i < parser.frames; i++)
             {
-                tempFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100), stepNum);
+                tempFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100), stepNum, speed);
             }
-            float nextFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100), stepNum);
+            float nextFinalT = secondBezier.ArcLengthProgress(tempFinalT, secondBezier.GetBezierLength(100), stepNum, speed);
 
             Matrix4x4 lastTransformMatrix =
             secondBezier.GetTranslationMatrix(tempFinalT) *
@@ -174,8 +196,8 @@ public class MotionPlayer : MonoBehaviour
             Vector3 lastPos = (lastTransformMatrix * tempObject.transform.localToWorldMatrix).ExtractPosition();
             Vector3 firstPos = (firstTransformMatrix * tempObject2.transform.localToWorldMatrix).ExtractPosition();
 
-            lastRot = (lastTransformMatrix * tempObject.transform.localToWorldMatrix).ExtractRotation();
-            firstRot = (firstTransformMatrix * tempObject2.transform.localToWorldMatrix).ExtractRotation();
+            //lastRot = (lastTransformMatrix * tempObject.transform.localToWorldMatrix).ExtractRotation();
+            //firstRot = (firstTransformMatrix * tempObject2.transform.localToWorldMatrix).ExtractRotation();
 
             offsetPos = firstPos - lastPos;
         }
@@ -192,10 +214,10 @@ public class MotionPlayer : MonoBehaviour
             float factor = SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30);
 
             secondLoader.rootJoint.transform.position += factor * offsetPos;
-            if (factor > 0)
-                secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(lastRot, firstRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30));
-            else
-                secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(firstRot, lastRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30));
+            //if (factor > 0)
+                //secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(lastRot, firstRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30));
+            //else
+                //secondLoader.rootJoint.transform.rotation *= Quaternion.Slerp(firstRot, lastRot, SelfConcatenateSmoothFunction(frame, parser.frames - 1, 30) * -1);
         }
 
         foreach (BVHParser.BVHBone child in parser.root.children)
