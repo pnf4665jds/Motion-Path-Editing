@@ -21,6 +21,8 @@ public class NewMotionPlayer : MonoBehaviour
     GameObject skeleton1Root;
     GameObject skeleton2Root;
 
+    private float finalT = 0;
+
     [Serializable]
     public struct BoneMap
     {
@@ -121,20 +123,17 @@ public class NewMotionPlayer : MonoBehaviour
             skeleton1Root.transform.position = rootLocalPos;
             skeleton1Root.transform.rotation = rootLocalRot;
 
-            bvd.Root().position = rootLocalPos;
-            bvd.Root().rotation = rootLocalRot;
+            bvd.Root().position = skeleton1Root.transform.position;
+            //bvd.Root().rotation = rootLocalRot;
 
             UpdateNewMotion(bezier, skeleton1Root.transform, frame);
 
-            bvd.MotionUpdateByFrame(frame, bvd.Root().gameObject);
-            /*foreach (BVHParser.BVHBone child in parser.root.children)
-            {
+            //bvd.MotionUpdateByFrame(frame, bvd.Root().gameObject);
+            bvd.MotionUpdateByFrame(frame, skeleton1Root);
 
-                bvd.SetupSkeleton(child, bvd.Root().rotation, 0);
-            }*/
 
-            
-           
+
+
 
             frame++;
             yield return new WaitForSeconds(parser.frameTime);
@@ -158,9 +157,14 @@ public class NewMotionPlayer : MonoBehaviour
 
         float t = (float)frame / parser.frames;
 
+        finalT = path2.ArcLengthProgress(finalT, path2.GetBezierLength(100), parser.frames-1);
+
+        if (finalT > 1)
+            finalT -= 1f;
+
         Matrix4x4 TransformMatrix =
-            path2.GetTranslationMatrix(t) *
-            path2.GetRotationMatrix(t) *
+            path2.GetTranslationMatrix(finalT) *
+            path2.GetRotationMatrix(finalT) *
             bezier.GetRotationMatrix(t).inverse *
             bezier.GetTranslationMatrix(t).inverse;
 
@@ -168,42 +172,19 @@ public class NewMotionPlayer : MonoBehaviour
 
         skeleton2Root.transform.position = FinalTransformMatrix.ExtractPosition();
         skeleton2Root.transform.rotation = FinalTransformMatrix.ExtractRotation();
-        driver2.Root().position = FinalTransformMatrix.ExtractPosition();
-        driver2.Root().rotation = FinalTransformMatrix.ExtractRotation();
+
+        driver2.Root().position = skeleton2Root.transform.position;
+        //driver2.Root().rotation = FinalTransformMatrix.ExtractRotation();
+
         Color color = Color.blue;
         Debug.DrawLine(driver2.Root().position, driver2.Root().position + driver2.Root().forward * 20, color);
         Debug.DrawLine(originalRoot.transform.position, originalRoot.transform.position + originalRoot.transform.forward * 20, color);
-        if (driver2.Root().rotation != originalRoot.transform.rotation) 
-        {
-            print("different" + driver2.Root().rotation   + " , " + originalRoot.transform.rotation);
-        }
-        //driver2.Root().position = originalRoot.transform.position;
-       // driver2.Root().rotation = originalRoot.transform.rotation;
-
         
-        //driver2.UpdateRootMotion(FinalTransformMatrix.ExtractPosition(),
-        //FinalTransformMatrix.ExtractRotation(), 1f);
 
 
-        //driver2.MotionUpdate(frame, driver2.Root().rotation);
-        /*foreach(string bname in driver2.bvhHireachy.Keys) 
-        {
-            if (driver2.bvhHireachy[bname] == "Hips") 
-            {
-                driver2.MotionUpdate2(bname, driver2.Root(), frame);
-
-            }
-        }*/
-        /*foreach (BVHParser.BVHBone child in parser.root.children) 
-        {
-
-            driver2.SetupSkeleton(child, driver2.Root().rotation, 0);
-        }*/
-
-        driver2.MotionUpdateByFrame(frame, driver2.Root().gameObject);
+        driver2.MotionUpdateByFrame(frame, skeleton2Root);
 
     }
-
 
 
 

@@ -7,6 +7,7 @@ public class RunTimeBezier : MonoBehaviour
     public List<GameObject> concretePoints = new List<GameObject>();
     public LineRenderer Lr;
     public float Speed = 1;
+    public Material CubeMaterial;
     //private GameObject[] concreteObject = new GameObject[4]; 
 
     private Vector3 p0, p1, p2, p3;
@@ -17,6 +18,11 @@ public class RunTimeBezier : MonoBehaviour
             var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.transform.localScale = new Vector3(10f, 10f, 10f);
             cube.transform.position = new Vector3(i*10, 0, 0);
+            if (CubeMaterial) 
+            {
+                cube.GetComponent<MeshRenderer>().material = CubeMaterial;
+            }
+            
 
             if (!isShowPoint)
             {
