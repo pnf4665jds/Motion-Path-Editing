@@ -49,8 +49,27 @@ public class RunTimeBezier : MonoBehaviour
         
     }
 
-    public void LogicalUpdate() 
+    public void LogicalUpdate(bool isShowPoint) 
     {
+        if (!isShowPoint)
+        {
+            foreach (GameObject gm in concretePoints)
+            {
+                gm.GetComponent<MeshRenderer>().enabled = false;
+                if (gm.GetComponent<DragPoint>())
+                    gm.GetComponent<DragPoint>().CanDrag = false;
+            }
+
+        }
+        else 
+        {
+            foreach (GameObject gm in concretePoints)
+            {
+                gm.GetComponent<MeshRenderer>().enabled = true;
+                if (gm.GetComponent<DragPoint>())
+                    gm.GetComponent<DragPoint>().CanDrag = true;
+            }
+        }
         if (concretePoints.Count <= 0) { return; }
 
         p0 = concretePoints[0].transform.position;

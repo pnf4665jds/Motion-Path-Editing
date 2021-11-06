@@ -9,6 +9,8 @@ public class DragPoint : MonoBehaviour
     private float mZCoord;
     private float yAxisValue;
 
+    public bool CanDrag = true;
+
     /*void Start() 
     {
         yAxisValue = this.transform.position.y;
@@ -45,6 +47,7 @@ public class DragPoint : MonoBehaviour
     float posY;
     void OnMouseDown()
     {
+        
         startPos = transform.position;
         dist = Camera.main.WorldToScreenPoint(transform.position);
         posX = Input.mousePosition.x - dist.x;
@@ -54,11 +57,15 @@ public class DragPoint : MonoBehaviour
 
     void OnMouseDrag()
     {
-        float disX = Input.mousePosition.x - posX;
-        float disY = Input.mousePosition.y - posY;
-        float disZ = Input.mousePosition.z - posZ;
-        Vector3 lastPos = Camera.main.ScreenToWorldPoint(new Vector3(disX, disY, disZ));
-        transform.position = new Vector3(lastPos.x, startPos.y, lastPos.z);
+        if (CanDrag) 
+        {
+            float disX = Input.mousePosition.x - posX;
+            float disY = Input.mousePosition.y - posY;
+            float disZ = Input.mousePosition.z - posZ;
+            Vector3 lastPos = Camera.main.ScreenToWorldPoint(new Vector3(disX, disY, disZ));
+            transform.position = new Vector3(lastPos.x, startPos.y, lastPos.z);
+        }
+        
     }
 
 }
