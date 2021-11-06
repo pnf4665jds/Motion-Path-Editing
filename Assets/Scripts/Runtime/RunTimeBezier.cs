@@ -171,6 +171,16 @@ public class RunTimeBezier : MonoBehaviour
     {
         Bezier.GetFirstDerivative(p0, p1, p2, p3, t);
     }
+
+    public void ClearBezier() 
+    {
+        foreach (GameObject gm in concretePoints) 
+        {
+            Destroy(gm);
+        }
+        concretePoints.Clear();
+        Lr.positionCount = 0;
+    }
     void OnDrawGizmos()
     {
         if (concretePoints.Count <= 0) { return; }
