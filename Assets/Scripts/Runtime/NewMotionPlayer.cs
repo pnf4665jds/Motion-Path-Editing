@@ -22,6 +22,8 @@ public class NewMotionPlayer : MonoBehaviour
     GameObject skeleton2Root;
 
     private float finalT = 0;
+    public bool IsArcLength{ get; set; } = false;
+    public float speed = 1;
 
     [Serializable]
     public struct BoneMap
@@ -158,10 +160,17 @@ public class NewMotionPlayer : MonoBehaviour
 
         float t = (float)frame / parser.frames;
 
-        finalT = path2.ArcLengthProgress(finalT, path2.GetBezierLength(100), parser.frames-1, 1);
-
-        if (finalT > 1)
-            finalT -= 1f;
+        if (IsArcLength)
+        {
+            if (finalT > 1)
+                finalT -= 1f;
+            finalT = path2.ArcLengthProgress(finalT, path2.GetBezierLength(100), parser.frames - 1, speed);
+            
+        }
+        else 
+        {
+            finalT = t;
+        }
 
         Matrix4x4 TransformMatrix =
             path2.GetTranslationMatrix(finalT) *
@@ -178,8 +187,8 @@ public class NewMotionPlayer : MonoBehaviour
         //driver2.Root().rotation = FinalTransformMatrix.ExtractRotation();
 
         Color color = Color.blue;
-        Debug.DrawLine(driver2.Root().position, driver2.Root().position + driver2.Root().forward * 20, color);
-        Debug.DrawLine(originalRoot.transform.position, originalRoot.transform.position + originalRoot.transform.forward * 20, color);
+        //Debug.DrawLine(driver2.Root().position, driver2.Root().position + driver2.Root().forward * 20, color);
+        //Debug.DrawLine(originalRoot.transform.position, originalRoot.transform.position + originalRoot.transform.forward * 20, color);
         
 
 
