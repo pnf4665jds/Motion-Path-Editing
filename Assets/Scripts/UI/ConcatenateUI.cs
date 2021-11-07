@@ -19,7 +19,7 @@ public class ConcatenateUI : MonoBehaviour
     {
         GUI.skin.button.fontSize = 30;
 
-        GUILayout.BeginArea(new Rect((Screen.width / 2) - widthOffset, (Screen.height / 2) - heightOffset, 400, 300));
+        GUILayout.BeginArea(new Rect((Screen.width / 2) - widthOffset, (Screen.height / 2) - heightOffset, 400,500));
         GUILayout.BeginVertical();
 
         //GUILayout.BeginArea(new Rect(Screen.width * 0.05f, Screen.height * 0.5f, Screen.width * 0.9f, Screen.height * 0.01f));
@@ -30,7 +30,7 @@ public class ConcatenateUI : MonoBehaviour
             FileBrowser.ShowLoadDialog((paths) =>
             {
                 filePath1 = paths[0];
-                concatenateMotionPlayer.Stop();
+                print(filePath1);
                 concatenateMotionPlayer.SetupParser1(filePath1);
             }, DoOnCancel, FileBrowser.PickMode.Files);
         }
@@ -43,7 +43,8 @@ public class ConcatenateUI : MonoBehaviour
             FileBrowser.ShowLoadDialog((paths) =>
             {
                 filePath2 = paths[0];
-                concatenateMotionPlayer.Stop();
+                print(filePath2);
+                
                 concatenateMotionPlayer.SetupParser2(filePath2);
             }, DoOnCancel, FileBrowser.PickMode.Files);
         }
@@ -51,6 +52,11 @@ public class ConcatenateUI : MonoBehaviour
         if (GUILayout.Button("Start", GUILayout.Width(300), GUILayout.Height(80)))
         {
             concatenateMotionPlayer.Init();
+        }
+
+        if (GUILayout.Button("Stop", GUILayout.Width(300), GUILayout.Height(80)))
+        {
+            concatenateMotionPlayer.Stop();
         }
         GUILayout.EndVertical();
         GUILayout.EndArea();
