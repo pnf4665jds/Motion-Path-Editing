@@ -152,9 +152,9 @@ public class MotionPlayer : MonoBehaviour
         float t = (float)frame / (parser.frames - 2);
         if (isArcLength)
         {
-            if (finalT > 1)
-                finalT -= 1f;
-            finalT = secondBezier.ArcLengthProgress(finalT, secondBezier.GetBezierLength(100), stepNum, speed);
+            if (frame == 1)
+                finalT  = 0;
+            finalT = secondBezier.ArcLengthProgress(finalT, mainBezier.GetBezierLength(100), stepNum, speed);
 
         }
         else
